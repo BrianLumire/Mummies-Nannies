@@ -7,6 +7,7 @@ import NannyTable from "@/components/nannies/TableNanny";
 import { renderRowNanny } from "@/components/nannies/renderRowNanny";
 import { filterData } from "@/utils/filterData";
 import { sortData } from "@/utils/sortData";
+import { useRouter } from "next/navigation";
 import {
   availableNannies,
   availableNanniesColumns,
@@ -21,6 +22,7 @@ const NanniesPage = () => {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [filters, setFilters] = useState({});
   const [loading, setLoading] = useState(false);
+   const router = useRouter();
 
   const buttons = ["Available Nannies", "Unavailable Nannies"];
 
@@ -157,7 +159,7 @@ const NanniesPage = () => {
             key={selectedButton}
             columns={columns}
             data={sortedData}
-            renderRow={(item) => renderRowNanny(item, selectedButton)}
+            renderRow={(item) => renderRowNanny(item, selectedButton, router)}
             searchTerm={searchTerm}
             onSearchChange={setSearchTerm}
             onFilterClick={handleFilterClick}

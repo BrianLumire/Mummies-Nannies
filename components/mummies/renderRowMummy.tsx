@@ -5,8 +5,8 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Mummy } from "@/components/mummies/TableMummy";
 
-export const renderRowMummy = (item: Mummy, selectedButton: string) => {
-  const router = useRouter();
+export const renderRowMummy = (item: Mummy, selectedButton: string, router: ReturnType<typeof useRouter>) => {
+ 
   if (selectedButton === "Active Mummies") {
     return (
       <tr key={item.id} className="border-b border-gray-300 hover:bg-gray-50">

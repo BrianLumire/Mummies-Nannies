@@ -7,6 +7,7 @@ import TableMummy from "@/components/mummies/TableMummy";
 import { renderRowMummy } from "@/components/mummies/renderRowMummy";
 import { filterData } from "@/utils/filterData";
 import { sortData } from "@/utils/sortData";
+import { useRouter } from "next/navigation";
 import {
   activeMummies,
   activeMummiesColumns,
@@ -21,7 +22,7 @@ const MummiesPage = () => {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [filters, setFilters] = useState({});
   const [loading, setLoading] = useState(false);
-
+  const router = useRouter();
   const buttons = ["Active Mummies", "Suspended Mummies"];
 
   const getTableData = () => {
@@ -156,7 +157,7 @@ const MummiesPage = () => {
             key={selectedButton}
             columns={columns}
             data={sortedData}
-            renderRow={(item) => renderRowMummy(item, selectedButton)}
+            renderRow={(item) => renderRowMummy(item, selectedButton, router)}
             searchTerm={searchTerm}
             onSearchChange={setSearchTerm}
             onFilterClick={handleFilterClick}

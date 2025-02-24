@@ -5,8 +5,8 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Nanny } from "@/components/nannies/TableNanny";
 
-export const renderRowNanny = (item: Nanny, selectedButton: string) => {
-  const router = useRouter();
+export const renderRowNanny = (item: Nanny, selectedButton: string, router: ReturnType<typeof useRouter>) => {
+ 
   if (selectedButton === "Available Nannies") {
     return (
       <tr key={item.id} className="border-b border-gray-300 hover:bg-gray-50">

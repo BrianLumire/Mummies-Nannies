@@ -1,7 +1,6 @@
 "use client";
 import React from "react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import {
   AcceptedOffer,
   PendingOffer,
@@ -12,7 +11,7 @@ export const renderRowSingleNanny = (
   item: AcceptedOffer | PendingOffer | DeclinedOffer,
   selectedOfferTab: string
 ) => {
-  const router = useRouter();
+  
 
   // Common cell for the "Mummy" column (photo and name)
   const mummyCell = (
