@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import Image from "next/image";
 import TableSingleNanny from "@/components/nannies/TableSingleNanny";
 import { renderRowSingleNanny } from "@/components/nannies/renderRowSingleNanny";
-import { filterData } from "@/utils/filterData";
+import { filterData, FilterCriteria  } from "@/utils/filterData";
 import { sortData } from "@/utils/sortData";
 import {
   Offer,
@@ -26,7 +26,7 @@ const SingleNannyPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortColumn, setSortColumn] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
-  const [filters, setFilters] = useState({});
+  const [filters, setFilters] = useState<FilterCriteria>({});
   const [loading, setLoading] = useState(false);
 
   // Get data for the selected offer tab
@@ -65,9 +65,10 @@ const SingleNannyPage = () => {
     setSortOrder(order);
   };
 
-  const handleFilterClick = (filter: any) => {
+  const handleFilterClick = (filter: FilterCriteria) => {
     setFilters(filter);
   };
+  
 
   const isAnyFilterApplied = Boolean(
     searchTerm || sortColumn || Object.keys(filters).length > 0

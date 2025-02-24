@@ -43,9 +43,14 @@ const EnterOtp = () => {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       toast.success("OTP verified successfully!");
       router.push("/auth/admin/login/create-password");
-    } catch (error: any) {
-      toast.error("OTP verification failed.");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("OTP verification failed.");
+      }
     } finally {
+
       setIsLoading(false);
     }
   };

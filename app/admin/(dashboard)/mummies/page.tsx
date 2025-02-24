@@ -5,7 +5,7 @@ import Image from "next/image";
 import MainCards from "@/components/shared/MainCards";
 import TableMummy from "@/components/mummies/TableMummy";
 import { renderRowMummy } from "@/components/mummies/renderRowMummy";
-import { filterData } from "@/utils/filterData";
+import { filterData,FilterCriteria  } from "@/utils/filterData";
 import { sortData } from "@/utils/sortData";
 import { useRouter } from "next/navigation";
 import {
@@ -20,7 +20,7 @@ const MummiesPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortColumn, setSortColumn] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
-  const [filters, setFilters] = useState({});
+  const [filters, setFilters] = useState<FilterCriteria>({});
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const buttons = ["Active Mummies", "Suspended Mummies"];
@@ -61,9 +61,10 @@ const MummiesPage = () => {
     setSortOrder(order);
   };
 
-  const handleFilterClick = (filter: any) => {
+  const handleFilterClick = (filter: FilterCriteria) => {
     setFilters(filter);
   };
+  
 
   const isAnyFilterApplied = Boolean(
     searchTerm || sortColumn || Object.keys(filters).length > 0

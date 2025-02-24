@@ -23,7 +23,7 @@ const CreatePassword = () => {
     try {
       const client = createClient();
       // Update the user's password using Supabase's updateUser method
-      const { data, error } = await client.auth.updateUser({ password: newPassword });
+      const { error } = await client.auth.updateUser({ password: newPassword });
       if (error) {
         toast.error(error.message);
         setIsLoading(false);
@@ -31,9 +31,14 @@ const CreatePassword = () => {
       }
       toast.success("Password updated successfully!");
       router.push("/auth/admin/login");
-    } catch (err: any) {
-      console.error("Error updating password:", err);
-      toast.error("An unexpected error occurred.");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        console.error("Error updating password:", err);
+        toast.error(err.message);
+      } else {
+        console.error("Unexpected error updating password:", err);
+        toast.error("An unexpected error occurred.");
+      }
     } finally {
       setIsLoading(false);
     }

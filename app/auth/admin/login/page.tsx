@@ -33,10 +33,11 @@ const AdminSignInPage = () => {
     setIsLoading(true);
     try {
       const client = createClient();
-      const { data: signInData, error } = await client.auth.signInWithPassword({
+      const { error } = await client.auth.signInWithPassword({
         email: data.email,
         password: data.password,
       });
+      
 
       if (error) {
         toast.error(error.message);
