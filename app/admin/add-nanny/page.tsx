@@ -22,10 +22,10 @@ const AddNannyForm: React.FC = () => {
   // Watch images to render previews
   const images = watch("images");
 
-  const onSubmit = (data: BioFormValues) => {
-    console.log("Bio Data:", data);
+  const onSubmit = async () => {
+    console.log("Bio Data:");
     // Save bio data to sessionStorage for later retrieval
-    sessionStorage.setItem("nannyBioData", JSON.stringify(data));
+    sessionStorage.setItem("nannyBioData", JSON.stringify({ ...watch() }));
     toast.success("Bio information saved!");
     router.push("/admin/add-nanny/personal"); // proceed to Personal Details
   };
