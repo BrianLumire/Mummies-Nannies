@@ -69,7 +69,7 @@ const CreatePassword = () => {
             animate={{ scale: 1 }}
             transition={{ duration: 0.3 }}
           >
-            <img
+            <Image
               src="/admin-assets/nanies-icon.svg"
               alt="Nannies Icon"
               className="w-[45px] h-[45px] hover:scale-105 transition-transform duration-200"
@@ -184,7 +184,7 @@ const CreatePassword = () => {
               className="flex justify-end mx-3 mb-3"
             >
               <div className="rounded-lg p-2 gap-2 flex items-center bg-[#ffffffda] hover:bg-white transition-colors duration-200">
-                <img
+                <Image
                   src="/admin-assets/profile1.svg"
                   alt=""
                   className="object-cover w-8 h-8 rounded-full"
@@ -203,7 +203,7 @@ const CreatePassword = () => {
               className="flex gap-2 items-center mx-3 mb-3"
             >
               <div className="bg-[#ffffffda] w-1/2 rounded-lg p-3 gap-2 flex items-center hover:bg-white transition-colors duration-200">
-                <img
+                <Image
                   src="/admin-assets/document.svg"
                   alt=""
                   className="object-cover w-8 h-8 p-1 bg-[#6000DA12] rounded-lg"
@@ -214,7 +214,7 @@ const CreatePassword = () => {
                 </div>
               </div>
               <div className="bg-[#ffffffda] w-1/2 rounded-lg p-3 gap-2 flex items-center hover:bg-white transition-colors duration-200">
-                <img
+                <Image
                   src="/admin-assets/onboard.svg"
                   alt=""
                   className="object-cover w-8 h-8 p-1 bg-[#6000DA12] rounded-lg"
@@ -235,7 +235,7 @@ const CreatePassword = () => {
               <div className="bg-[#ffffffda] w-[65%] rounded-lg p-2 gap-2 flex flex-col hover:bg-white transition-colors duration-200">
                 <div className="flex justify-between items-center">
                   <div className="flex gap-2">
-                    <img
+                    <Image
                       src="/admin-assets/profile2.svg"
                       alt=""
                       className="object-cover w-8 h-8 rounded-full"

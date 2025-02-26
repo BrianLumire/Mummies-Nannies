@@ -116,7 +116,7 @@ const ProfessionalInfoPage: React.FC = () => {
       sessionStorage.removeItem("nannyPersonalData");
       sessionStorage.removeItem("nannyContactData");
       router.push("/admin/nannies");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error creating nanny:", error);
       toast.error("Error creating nanny");
     }
@@ -158,21 +158,25 @@ const ProfessionalInfoPage: React.FC = () => {
             <div className="flex flex-col gap-3 w-full">
               <p className="font-barlow font-semibold text-base">Professional Information</p>
               <div className="mt-4 relative">
-                <label htmlFor="Education" className="block text-sm font-medium text-gray-700 font-barlow">
-                  Highest Educational Level
-                </label>
-                <select
-                  id="Education"
-                  {...register("highest_education")}
-                  className="mt-1 p-2 pr-10 border border-gray-300 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-purple-500 appearance-none"
-                >
-                  <option value="">Select Level</option>
-                  <option value="high_school">High School</option>
-                  <option value="associate">Associate</option>
-                  <option value="bachelor">Bachelor</option>
-                  <option value="master">Master</option>
-                  <option value="doctorate">Doctorate</option>
-                </select>
+              <label htmlFor="Education" className="block text-sm font-medium text-gray-700 font-barlow">
+  Highest Educational Level
+</label>
+<select
+  id="Education"
+  {...register("highest_education")}
+  className="mt-1 p-2 pr-10 border border-gray-300 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-purple-500 appearance-none"
+>
+  <option value="">Select Level</option>
+  <option value="high_school">High School</option>
+  <option value="associate">Associate</option>
+  <option value="bachelor">Bachelor</option>
+  <option value="master">Master</option>
+  <option value="doctorate">Doctorate</option>
+</select>
+{errors.highest_education && (
+  <p className="text-red-500 text-sm mt-1">{errors.highest_education.message}</p>
+)}
+
               </div>
 
               {/* Work Terms Toggle */}

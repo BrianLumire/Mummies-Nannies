@@ -113,7 +113,7 @@ export const AdminNavbar = ({
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
           className="rounded-lg gap-2 flex items-center bg-[#ffffffda] hover:bg-white transition-colors duration-200 pr-2"
         >
-          <img
+          <Image
             src="/admin-assets/profile1.svg"
             alt=""
             className="object-cover w-8 h-8 rounded-full"

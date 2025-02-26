@@ -32,7 +32,7 @@ const ContactInfoPage: React.FC = () => {
   ]);
 
   // This state will hold the generated user UUID (for debugging; not used elsewhere)
-  const [userId, setUserId] = useState<string>("");
+  //const [userId, setUserId] = useState<string>("");
 
   // Function to invoke Supabase function to create a new user account
   const generateUserId = async (phone: string): Promise<string> => {
@@ -74,7 +74,7 @@ const ContactInfoPage: React.FC = () => {
       sessionStorage.setItem("nannyContactData", JSON.stringify(completeData));
 
       router.push("/admin/add-nanny/professional");
-    } catch (error: any) {
+    } catch (error: unknown)  {
       console.error("Error creating user account:", error);
       toast.error("Error creating user account");
     }
