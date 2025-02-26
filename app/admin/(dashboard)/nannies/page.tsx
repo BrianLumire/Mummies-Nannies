@@ -1,4 +1,3 @@
-// /pages/nannies.tsx
 "use client";
 import React, { useState } from "react";
 import Image from "next/image";
@@ -8,12 +7,13 @@ import { renderRowNanny } from "@/components/nannies/renderRowNanny";
 import { filterData, FilterCriteria } from "@/utils/filterData";
 import { sortData } from "@/utils/sortData";
 import { useRouter } from "next/navigation";
-import {
-  availableNannies,
-  availableNanniesColumns,
-  unavailableNannies,
-  unavailableNanniesColumns,
-} from "@/utils/nanniesData";
+import { useNannies, NannyData } from "@/hooks/nanny/useNannies";
+
+// Define the Column interface locally
+interface Column {
+  header: string;
+  accessor: keyof NannyData;
+}
 
 const NanniesPage = () => {
   const [selectedButton, setSelectedButton] = useState("Available Nannies");
@@ -21,40 +21,58 @@ const NanniesPage = () => {
   const [sortColumn, setSortColumn] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [filters, setFilters] = useState<FilterCriteria>({});
-  const [loading, setLoading] = useState(false);
-   const router = useRouter();
+  const [loadingSim, setLoadingSim] = useState(false);
+  const router = useRouter();
 
   const buttons = ["Available Nannies", "Unavailable Nannies"];
 
-  const getTableData = () => {
-    if (selectedButton === "Available Nannies") {
-      return {
-        data: availableNannies,
-        columns: availableNanniesColumns,
-      };
-    } else if (selectedButton === "Unavailable Nannies") {
-      return {
-        data: unavailableNannies,
-        columns: unavailableNanniesColumns,
-      };
-    }
-    return { data: [], columns: [] };
-  };
+  const handleAddNannyClick = () => {
+    router.push("/admin/add-nanny");
+};
 
-  const { data, columns } = getTableData();
-  const filteredData = filterData(data, searchTerm, filters);
+  // Define columns for each view
+  const availableColumns: Column[] = [
+    { header: "Name", accessor: "full_name" },
+    { header: "Phone", accessor: "phone" },
+    { header: "Location", accessor: "location" },
+    { header: "Budget Range", accessor: "budget_range" },
+    { header: "Available For", accessor: "availablefor" },
+    { header: "Work Type", accessor: "work_type" },
+    { header: "Rating", accessor: "rating" },
+    { header: "Offers", accessor: "offers" },
+  ];
+
+  const unavailableColumns: Column[] = [
+    { header: "Name", accessor: "full_name" },
+    { header: "Phone", accessor: "phone" },
+    { header: "Location", accessor: "location" },
+    { header: "Budget Range", accessor: "budget_range" },
+    { header: "Available For", accessor: "availablefor" },
+    { header: "Work Type", accessor: "work_type" },
+    { header: "Rating", accessor: "rating" },
+    { header: "Last Seen", accessor: "last_seen" },
+    { header: "Reason", accessor: "reason" },
+    { header: "Offers", accessor: "offers" },
+  ];
+
+  // Use our custom hook:
+  const currentAvailability = selectedButton === "Available Nannies" ? "available" : "unavailable";
+  const { data: fetchedNannies, loading, error } = useNannies(currentAvailability);
+
+  // Apply filters and sorting on the fetched data.
+  const filteredData = filterData(fetchedNannies, searchTerm, filters);
   const sortedData = sortData(filteredData, sortColumn, sortOrder);
 
   const handleButtonClick = (button: string) => {
-    setLoading(true);
+    setLoadingSim(true);
     setSelectedButton(button);
-    // Reset any filters, search or sort when switching tables
+    // Reset filters, search, and sort when switching tables
     setSearchTerm("");
     setSortColumn(null);
     setSortOrder("asc");
     setFilters({});
     // Simulate a loading delay
-    setTimeout(() => setLoading(false), 300);
+    setTimeout(() => setLoadingSim(false), 300);
   };
 
   const handleSortClick = (column: string) => {
@@ -66,11 +84,13 @@ const NanniesPage = () => {
   const handleFilterClick = (filter: FilterCriteria) => {
     setFilters(filter);
   };
-  
 
   const isAnyFilterApplied = Boolean(
     searchTerm || sortColumn || Object.keys(filters).length > 0
   );
+
+  // Choose columns based on selected button
+  const columns = selectedButton === "Available Nannies" ? availableColumns : unavailableColumns;
 
   return (
     <div className="p-4">
@@ -79,14 +99,17 @@ const NanniesPage = () => {
         <div className="flex flex-col gap-1">
           <span className="text-base font-semibold">Manage Nannies</span>
           <span className="text-sm">
-  <span style={{ color: '#6000DA' }}>Home</span> / Nannies
-</span>
+            <span style={{ color: "#6000DA" }}>Home</span> / Nannies
+          </span>
         </div>
         <div>
-          <button className="flex items-center gap-2 px-6 py-2 rounded-lg bg-purple-700">
-            <Image src="/admin-assets/add-icon.svg" alt="Add Nanny" width={13} height={13} />
-            <span className="text-white text-sm">Add Nanny</span>
-          </button>
+        <button 
+                        className="flex items-center gap-2 px-6 py-2 rounded-lg bg-purple-700"
+                        onClick={handleAddNannyClick} // Add the onClick handler
+                    >
+                        <Image src="/admin-assets/add-icon.svg" alt="Add Nanny" width={13} height={13} />
+                        <span className="text-white text-sm">Add Nanny</span>
+                    </button>
         </div>
       </div>
 
@@ -135,7 +158,7 @@ const NanniesPage = () => {
       <div className="mt-4">
         <h1 className="font-semibold text-base">All Nannies</h1>
         <div className="my-4">
-        <div className="flex gap-3 bg-[#FAFAFA] p-3 rounded-lg shadow-md border border-gray-200">
+          <div className="flex gap-3 bg-[#FAFAFA] p-3 rounded-lg shadow-md border border-gray-200">
             {buttons.map((button) => (
               <button
                 key={button}
@@ -151,10 +174,12 @@ const NanniesPage = () => {
             ))}
           </div>
         </div>
-        {loading ? (
+        {loading || loadingSim ? (
           <div className="flex justify-center items-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-700"></div>
           </div>
+        ) : error ? (
+          <div className="text-red-500">{error}</div>
         ) : (
           <NannyTable
             key={selectedButton}

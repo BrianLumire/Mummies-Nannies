@@ -5,7 +5,7 @@ import {
   AcceptedOffer,
   PendingOffer,
   DeclinedOffer,
-} from "@/utils/nanniesData";
+} from "@/utils/nannies/nanniesData";
 
 export const renderRowSingleNanny = (
   item: AcceptedOffer | PendingOffer | DeclinedOffer,

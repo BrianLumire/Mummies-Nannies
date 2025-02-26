@@ -25,7 +25,8 @@ const RecoverPassword = () => {
       toast.error(error.message);
     } else {
       toast.success("OTP has been sent! Check your email.");
-      router.push('/auth/admin/login/enter-otp');
+      // Pass the email as a query parameter so that EnterOtp can extract it.
+      router.push(`/auth/admin/login/enter-otp?email=${encodeURIComponent(email)}`);
     }
   };
 

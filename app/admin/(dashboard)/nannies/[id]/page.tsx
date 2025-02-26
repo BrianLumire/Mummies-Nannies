@@ -13,7 +13,7 @@ import {
   pendingOffersColumns,
   declinedOffers,
   declinedOffersColumns,
-} from "@/utils/nanniesData";
+} from "@/utils/nannies/nanniesData";
 
 interface Column {
   header: string;

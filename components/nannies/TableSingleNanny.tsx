@@ -2,7 +2,7 @@
 import React from "react";
 import TableControlsSingleNanny from "@/components/nannies/TableControlsSingleNanny";
 import { FilterCriteria } from "@/utils/filterData";
-import { Offer } from "@/utils/nanniesData";
+import { Offer } from "@/utils/nannies/nanniesData";
 
 interface Column {
   header: string;

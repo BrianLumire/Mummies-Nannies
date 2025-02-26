@@ -1,23 +1,35 @@
 "use client";
-import React, { useRef, useState } from "react";
+
+import React, { useRef, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { createClient } from "@/supabase/client";
+import Image from "next/image";
 
 const EnterOtp = () => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [otpValues, setOtpValues] = useState(["", "", "", "", ""]);
+  // 6-digit OTP state
+  const [otpValues, setOtpValues] = useState(["", "", "", "", "", ""]);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const [email, setEmail] = useState("");
+
+  // Extract email from URL query parameters
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const emailParam = params.get("email") || "";
+    setEmail(emailParam);
+  }, []);
 
   // Update OTP digit and move focus if necessary
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
     const value = e.target.value;
-    if (value.length > 1) return; // Only allow one digit
+    if (value.length > 1) return; // Only allow one digit per input
     const newOtpValues = [...otpValues];
     newOtpValues[index] = value;
     setOtpValues(newOtpValues);
-    if (value && index < 5) {
+    if (value && index < otpValues.length - 1) {
       inputRefs.current[index + 1]?.focus();
     }
   };
@@ -29,19 +41,36 @@ const EnterOtp = () => {
     }
   };
 
-  // When user clicks Proceed, verify that all 5 digits are entered
+  // When user clicks Proceed, verify that all 6 digits are entered and then verify OTP
   const handleProceed = async () => {
     const otp = otpValues.join("");
-    if (otp.length < 5) {
-      toast.error("Please enter a complete 5-digit OTP.");
+    if (otp.length < 6) {
+      toast.error("Please enter a complete 6-digit OTP.");
+      return;
+    }
+    // Ensure email is provided
+    if (!email) {
+      toast.error("No email provided. Please restart the reset process.");
+      router.push("/auth/admin/login/recover-password"); // Adjust as needed
       return;
     }
     setIsLoading(true);
     try {
-      // Here you would call your OTP verification API.
-      // For now, we simulate a delay (replace this with your actual API call).
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // Create a new Supabase client instance
+      const supabase = createClient();
+      // For numeric OTP recovery, pass the email and the OTP as the token.
+      const { data, error } = await supabase.auth.verifyOtp({
+        email,        // The user's email
+        token: otp,   // The OTP code entered by the user
+        type: "recovery",
+      });
+      if (error) {
+        toast.error(error.message);
+        setIsLoading(false);
+        return;
+      }
       toast.success("OTP verified successfully!");
+      // Now that a session is established, redirect to the create-password page
       router.push("/auth/admin/login/create-password");
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -50,7 +79,6 @@ const EnterOtp = () => {
         toast.error("OTP verification failed.");
       }
     } finally {
-
       setIsLoading(false);
     }
   };
@@ -86,7 +114,7 @@ const EnterOtp = () => {
           </motion.div>
           <div className="flex justify-center mb-16">
             <div className="flex space-x-2">
-              {[0, 1, 2, 3, 4, 5].map((_, index) => (
+              {Array.from({ length: 6 }).map((_, index) => (
                 <input
                   key={index}
                   type="text"
@@ -121,83 +149,97 @@ const EnterOtp = () => {
         </motion.div>
       </div>
 
-       {/* Right side */}
-            <div className="w-1/2 bg-[url('/admin-assets/bg-pic.svg')] bg-cover bg-center hidden md:block relative">
-              <div className="absolute flex flex-col items-center justify-center inset-0 bg-gradient-to-r from-[#440397] to-[#1A013A63] opacity-60">
-                <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.2 }}
-                  className="flex flex-col w-[80%]"
-                >
-                  <p className="font-barlow text-2xl text-white font-semibold mx-3 max-w-[270px]">
-                    Manage all Operations in One Place
-                  </p>
-                  <motion.div 
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.5, delay: 0.3 }}
-                    className="flex justify-end mx-3 mb-3"
-                  >
-                    <div className="rounded-lg p-2 gap-2 flex items-center bg-[#ffffffda] hover:bg-white transition-colors duration-200">
-                      <img src="/admin-assets/profile1.svg" alt="" className="object-cover w-8 h-8 rounded-full"/>
-                      <div className="flex flex-col gap-1">
-                        <p className="text-xs font-sans">I.am Wangari</p>
-                        <span className="text-[10px]">Online</span>
-                      </div>
-                    </div>
-                  </motion.div>
-          
-                  <motion.div 
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.4 }}
-                    className="flex gap-2 items-center mx-3 mb-3"
-                  >
-                    <div className="bg-[#ffffffda] w-1/2 rounded-lg p-3 gap-2 flex items-center hover:bg-white transition-colors duration-200">
-                      <img src="/admin-assets/document.svg" alt="" className="object-cover w-8 h-8 p-1 bg-[#6000DA12] rounded-lg"/>
-                      <div className="flex flex-col gap-1">
-                        <p className="text-xs font-sans font-semibold">+ 34</p>
-                        <span className="text-[10px]">Hired Nannies</span>
-                      </div>
-                    </div>
-                    <div className="bg-[#ffffffda] w-1/2 rounded-lg p-3 gap-2 flex items-center hover:bg-white transition-colors duration-200">
-                      <img src="/admin-assets/onboard.svg" alt="" className="object-cover w-8 h-8 p-1 bg-[#6000DA12] rounded-lg"/>
-                      <div className="flex flex-col gap-1">
-                        <p className="text-xs font-sans font-semibold">+ 42</p>
-                        <span className="text-[10px]">Nannies Onboarded</span>
-                      </div>
-                    </div>
-                  </motion.div>
-          
-                  <motion.div 
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.5 }}
-                    className="flex items-center justify-center"
-                  >
-                    <div className="bg-[#ffffffda] w-[65%] rounded-lg p-2 gap-2 flex flex-col hover:bg-white transition-colors duration-200">
-                      <div className="flex justify-between items-center">
-                        <div className="flex gap-2">
-                          <img src="/admin-assets/profile2.svg" alt="" className="object-cover w-8 h-8 rounded-full"/>
-                          <div className="flex flex-col gap-1">
-                            <p className="text-xs font-sans font-semibold">Sharon Wanjiku</p>
-                            <span className="text-[10px]">Received 32 min ago</span>
-                          </div>
-                        </div>
-                        <button className="border border-[#6000DA] flex items-center rounded-lg px-6 py-[3px] hover:bg-[#6000DA] hover:text-white transition-all duration-200">
-                          <span className="text-[#6000DA] text-xs hover:text-inherit">Accept</span>
-                        </button>
-                      </div>
-                      <div className="flex flex-col gap-1 pl-10">
-                        <p className="text-xs font-sans font-semibold">Salary offer: Ksh 15,000</p>
-                        <span className="text-[10px]">That is the best I can do.</span>
-                      </div>
-                    </div>
-                  </motion.div>
-                </motion.div>
+      {/* Right Side */}
+      <div className="w-1/2 bg-[url('/admin-assets/bg-pic.svg')] bg-cover bg-center hidden md:block relative">
+        <div className="absolute flex flex-col items-center justify-center inset-0 bg-gradient-to-r from-[#440397] to-[#1A013A63] opacity-60">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="flex flex-col w-[80%]"
+          >
+            <p className="font-barlow text-2xl text-white font-semibold mx-3 max-w-[270px]">
+              Manage all Operations in One Place
+            </p>
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="flex justify-end mx-3 mb-3"
+            >
+              <div className="rounded-lg p-2 gap-2 flex items-center bg-[#ffffffda] hover:bg-white transition-colors duration-200">
+                <img
+                  src="/admin-assets/profile1.svg"
+                  alt=""
+                  className="object-cover w-8 h-8 rounded-full"
+                />
+                <div className="flex flex-col gap-1">
+                  <p className="text-xs font-sans">I.am Wangari</p>
+                  <span className="text-[10px]">Online</span>
+                </div>
               </div>
-            </div>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              className="flex gap-2 items-center mx-3 mb-3"
+            >
+              <div className="bg-[#ffffffda] w-1/2 rounded-lg p-3 gap-2 flex items-center hover:bg-white transition-colors duration-200">
+                <img
+                  src="/admin-assets/document.svg"
+                  alt=""
+                  className="object-cover w-8 h-8 p-1 bg-[#6000DA12] rounded-lg"
+                />
+                <div className="flex flex-col gap-1">
+                  <p className="text-xs font-sans font-semibold">+ 34</p>
+                  <span className="text-[10px]">Hired Nannies</span>
+                </div>
+              </div>
+              <div className="bg-[#ffffffda] w-1/2 rounded-lg p-3 gap-2 flex items-center hover:bg-white transition-colors duration-200">
+                <img
+                  src="/admin-assets/onboard.svg"
+                  alt=""
+                  className="object-cover w-8 h-8 p-1 bg-[#6000DA12] rounded-lg"
+                />
+                <div className="flex flex-col gap-1">
+                  <p className="text-xs font-sans font-semibold">+ 42</p>
+                  <span className="text-[10px]">Nannies Onboarded</span>
+                </div>
+              </div>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.5 }}
+              className="flex items-center justify-center"
+            >
+              <div className="bg-[#ffffffda] w-[65%] rounded-lg p-2 gap-2 flex flex-col hover:bg-white transition-colors duration-200">
+                <div className="flex justify-between items-center">
+                  <div className="flex gap-2">
+                    <img
+                      src="/admin-assets/profile2.svg"
+                      alt=""
+                      className="object-cover w-8 h-8 rounded-full"
+                    />
+                    <div className="flex flex-col gap-1">
+                      <p className="text-xs font-sans font-semibold">Sharon Wanjiku</p>
+                      <span className="text-[10px]">Received 32 min ago</span>
+                    </div>
+                  </div>
+                  <button className="border border-[#6000DA] flex items-center rounded-lg px-6 py-[3px] hover:bg-[#6000DA] hover:text-white transition-all duration-200">
+                    <span className="text-[#6000DA] text-xs hover:text-inherit">Accept</span>
+                  </button>
+                </div>
+                <div className="flex flex-col gap-1 pl-10">
+                  <p className="text-xs font-sans font-semibold">Salary offer: Ksh 15,000</p>
+                  <span className="text-[10px]">That is the best I can do.</span>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        </div>
+      </div>
     </div>
   );
 };
