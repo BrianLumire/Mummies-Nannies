@@ -172,7 +172,13 @@ const AdminSignInPage = () => {
               className="flex justify-end mx-3 mb-3"
             >
               <div className="rounded-lg p-2 gap-2 flex items-center bg-[#ffffffda] hover:bg-white transition-colors duration-200">
-                <Image src="/admin-assets/profile1.svg" alt="" className="object-cover w-8 h-8 rounded-full"/>
+              <Image
+  src="/admin-assets/profile1.svg"
+  alt=""
+  className="object-cover w-8 h-8 rounded-full"
+  width={32} // Provide the width in pixels
+  height={32} // Provide the height in pixels
+/>
                 <div className="flex flex-col gap-1">
                   <p className='text-xs font-sans'>I.am Wangari</p>
                   <span className='text-[10px]'>Online</span>

@@ -30,7 +30,8 @@ const AddNannyForm: React.FC = () => {
 
       // Placeholder for successful creation
       toast.success("Nanny created successfully!");
-    } catch (err) { // Changed 'error' to 'err' and used it
+      router.push("/admin/nannies"); // Redirect after successful creation
+    } catch (err) {
       console.error("Error creating nanny:", err);
       toast.error("Error creating nanny");
     }
