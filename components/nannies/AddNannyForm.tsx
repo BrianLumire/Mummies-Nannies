@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { nannySchema, NannyFormValues } from "@/hooks/nanny/nannySchema";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner"; // or react-toastify, etc.
+import { toast } from "sonner";
 import Image from "next/image";
 
 const AddNannyForm: React.FC = () => {
@@ -18,31 +18,31 @@ const AddNannyForm: React.FC = () => {
     resolver: zodResolver(nannySchema),
   });
 
-  // Watch images field to render previews
   const images = watch("images");
   const router = useRouter();
+
   const onSubmit = async (data: NannyFormValues) => {
-    // Here, you'll integrate with Supabase to create a new nanny
     try {
+      // Here, you'll integrate with Supabase to create a new nanny
       // For example, upload images first and get URLs, then insert the nanny record.
       // const uploadedImageUrls = await uploadImages(data.images);
       // const { error } = await supabase.from("nannies").insert({ ...data, images: uploadedImageUrls });
+
+      // Placeholder for successful creation
       toast.success("Nanny created successfully!");
-    } catch (error) {
+    } catch (err) { // Changed 'error' to 'err' and used it
+      console.error("Error creating nanny:", err);
       toast.error("Error creating nanny");
     }
   };
 
-  // Handler for file input changes
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files) {
-      // Convert FileList to Array and set the form value
       setValue("images", Array.from(files));
     }
   };
 
-  // Remove an image from the form (by index)
   const removeImage = (index: number) => {
     const currentImages = images || [];
     currentImages.splice(index, 1);
@@ -51,7 +51,6 @@ const AddNannyForm: React.FC = () => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      {/* Example Input Fields */}
       <div>
         <label htmlFor="full_name">Full Name</label>
         <input type="text" id="full_name" {...register("full_name")} />
@@ -70,24 +69,18 @@ const AddNannyForm: React.FC = () => {
         {errors.location && <p className="text-red-500">{errors.location.message}</p>}
       </div>
 
-      {/* ... Additional fields for nationality, religion, tribe, work_type, etc. */}
-
-      {/* File Upload Section */}
       <div className="flex gap-4">
-        {/* Render 4 upload containers */}
         {[0, 1, 2, 3].map((containerIndex) => {
           const file = images?.[containerIndex];
           return (
             <div key={containerIndex} className="relative border-dotted border-2 w-full md:w-1/4 h-40 border-gray-300 shadow-md rounded-lg p-1 flex flex-col gap-2 items-center justify-center">
               {file ? (
                 <>
-                  {/* Preview Image */}
                   <img
                     src={URL.createObjectURL(file)}
                     alt={`Preview ${containerIndex}`}
                     className="object-cover rounded-lg w-full h-full"
                   />
-                  {/* Delete button */}
                   <button
                     type="button"
                     onClick={() => removeImage(containerIndex)}
@@ -113,7 +106,6 @@ const AddNannyForm: React.FC = () => {
           );
         })}
       </div>
-      {/* Hidden file input for images */}
       <input
         id="image-upload"
         type="file"
@@ -124,7 +116,6 @@ const AddNannyForm: React.FC = () => {
       />
       {errors.images && <p className="text-red-500">{errors.images.message}</p>}
 
-      {/* Action Buttons */}
       <div className="flex justify-end gap-3">
         <button type="button" className="px-8 py-3 bg-[#F5F5F5] rounded-lg" onClick={() => router.push("/admin/nannies")}>
           Discard

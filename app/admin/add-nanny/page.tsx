@@ -24,9 +24,10 @@ const AddNannyForm: React.FC = () => {
 
   const onSubmit = (data: BioFormValues) => {
     console.log("Bio Data:", data);
+    // Save bio data to sessionStorage for later retrieval
     sessionStorage.setItem("nannyBioData", JSON.stringify(data));
     toast.success("Bio information saved!");
-    router.push("/admin/add-nanny/personal");
+    router.push("/admin/add-nanny/personal"); // proceed to Personal Details
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -105,8 +106,6 @@ const AddNannyForm: React.FC = () => {
                           src={URL.createObjectURL(file)}
                           alt={`Preview ${containerIndex}`}
                           className="object-cover rounded-lg w-full h-full"
-                          width={200}
-                          height={200}
                         />
                         <button
                           type="button"
