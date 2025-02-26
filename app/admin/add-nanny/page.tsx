@@ -22,16 +22,16 @@ const AddNannyForm: React.FC = () => {
   // Watch images to render previews
   const images = watch("images");
 
-  const onSubmit = (_data: BioFormValues) => {
-    console.log("Bio Data:", _data);
+  const onSubmit = (data: BioFormValues) => { // Removed underscore from data
+    console.log("Bio Data:", data);
     // Save bio data to sessionStorage for later retrieval
-    sessionStorage.setItem("nannyBioData", JSON.stringify(_data));
+    sessionStorage.setItem("nannyBioData", JSON.stringify(data));
     toast.success("Bio information saved!");
     router.push("/admin/add-nanny/personal"); // proceed to Personal Details
   };
 
-  const handleImageChange = (_e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = _e.target.files;
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => { // Removed underscore from e
+    const files = e.target.files;
     if (files) {
       setValue("images", Array.from(files));
     }
@@ -102,7 +102,7 @@ const AddNannyForm: React.FC = () => {
                   >
                     {file ? (
                       <>
-                        <Image
+                        <img
                           src={URL.createObjectURL(file)}
                           alt={`Preview ${containerIndex}`}
                           className="object-cover rounded-lg w-full h-full"

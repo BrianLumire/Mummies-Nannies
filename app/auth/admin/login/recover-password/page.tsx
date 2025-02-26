@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { createClient } from "@/supabase/client";
 import { toast } from "sonner";
+import Image from 'next/image';
+
 
 const RecoverPassword = () => {
   const [isLoading, setIsLoading] = useState(false);
