@@ -156,11 +156,12 @@ const ProfessionalInfoPage: React.FC = () => {
       };
 
       // Check if a nanny record for this user already exists
-      const { data: existingNanny, error: existingError } = await supabase
-        .from("nannies")
-        .select("id")
-        .eq("user_id", completeData.user_id)
-        .maybeSingle();
+      const { data: existingNanny } = await supabase
+  .from("nannies")
+  .select("id")
+  .eq("user_id", completeData.user_id)
+  .maybeSingle();
+
 
       let nannyId;
       if (existingNanny) {

@@ -57,11 +57,12 @@ const EnterOtp = () => {
     try {
       const supabase = createClient();
       // Updated: Use type "email" instead of "recovery"
-      const { data, error } = await supabase.auth.verifyOtp({
+      const { error } = await supabase.auth.verifyOtp({
         email,
         token: otp,
         type: "email",
       });
+      
       
       if (error) {
         toast.error(error.message);

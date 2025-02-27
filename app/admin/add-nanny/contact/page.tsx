@@ -32,7 +32,7 @@ const ContactInfoPage: React.FC = () => {
   ]);
 
   // This state will hold the generated user UUID (for debugging; not used elsewhere)
-  const [userId, setUserId] = useState<string>("");
+
 
   // Function to invoke Supabase function to create a new user account
   const generateUserId = async (phone: string): Promise<string> => {
@@ -59,7 +59,7 @@ const ContactInfoPage: React.FC = () => {
 
       const generatedUserId = await generateUserId(formattedPhone);
       console.log("Generated User ID:", generatedUserId);
-      setUserId(generatedUserId);
+     
 
       if (!generatedUserId) {
         throw new Error("User ID is missing from the function response.");
