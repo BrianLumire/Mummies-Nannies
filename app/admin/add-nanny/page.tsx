@@ -18,14 +18,14 @@ const AddNannyForm: React.FC = () => {
   } = useForm<BioFormValues>({
     resolver: zodResolver(bioSchema),
   });
-
+  
   // Watch images to render previews
   const images = watch("images");
 
-  const onSubmit = async () => {
-    console.log("Bio Data:");
+  const onSubmit = (data: BioFormValues) => {
+    console.log("Bio Data:", data);
     // Save bio data to sessionStorage for later retrieval
-    sessionStorage.setItem("nannyBioData", JSON.stringify({ ...watch() }));
+    sessionStorage.setItem("nannyBioData", JSON.stringify(data));
     toast.success("Bio information saved!");
     router.push("/admin/add-nanny/personal"); // proceed to Personal Details
   };
@@ -106,6 +106,8 @@ const AddNannyForm: React.FC = () => {
                           src={URL.createObjectURL(file)}
                           alt={`Preview ${containerIndex}`}
                           className="object-cover rounded-lg w-full h-full"
+                          width={100} 
+                          height={100}
                         />
                         <button
                           type="button"

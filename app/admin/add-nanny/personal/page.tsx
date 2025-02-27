@@ -145,8 +145,9 @@ const PersonalDetailsPage: React.FC = () => {
                     <Image
                       src={previews[index]}
                       alt="Uploaded photo preview"
-                      fill
+                      layout="fill"
                       className="object-cover"
+                      
                     />
                   </div>
                 ) : (

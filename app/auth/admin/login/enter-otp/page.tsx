@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useRef, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
@@ -56,20 +55,14 @@ const EnterOtp = () => {
     }
     setIsLoading(true);
     try {
-      // Create a new Supabase client instance
       const supabase = createClient();
-      // For numeric OTP recovery, pass the email and the OTP as the token.
-     // const { data, error } = await supabase.auth.verifyOtp({
-      //  email,        // The user's email
-      //  token: otp,   // The OTP code entered by the user
-      //  type: "recovery",
-     // });
-     const { error } = await supabase.auth.verifyOtp({
-      email,
-      token: otp,
-      type: "recovery",
-    });
-    
+      // Updated: Use type "email" instead of "recovery"
+      const { data, error } = await supabase.auth.verifyOtp({
+        email,
+        token: otp,
+        type: "email",
+      });
+      
       if (error) {
         toast.error(error.message);
         setIsLoading(false);
@@ -109,6 +102,8 @@ const EnterOtp = () => {
               src="/admin-assets/nanies-icon.svg"
               alt="Nannies Icon"
               className="w-[45px] h-[45px] hover:scale-105 transition-transform duration-200"
+              width={32}
+              height={32}
             />
             <span className="mb-4 font-medium text-[#6000DA] font-lemon text-lg hover:text-[#4a00ae] transition-colors duration-200">
               Nannies
@@ -174,13 +169,13 @@ const EnterOtp = () => {
               className="flex justify-end mx-3 mb-3"
             >
               <div className="rounded-lg p-2 gap-2 flex items-center bg-[#ffffffda] hover:bg-white transition-colors duration-200">
-              <Image
-  src="/admin-assets/profile1.svg"
-  alt=""
-  className="object-cover w-8 h-8 rounded-full"
-  width={32} // Provide the width in pixels
-  height={32} // Provide the height in pixels
-/>
+                <Image
+                  src="/admin-assets/"
+                  alt=""
+                  className="object-cover w-8 h-8 rounded-full"
+                  width={32}
+                  height={32}
+                />
                 <div className="flex flex-col gap-1">
                   <p className="text-xs font-sans">I.am Wangari</p>
                   <span className="text-[10px]">Online</span>
@@ -198,6 +193,8 @@ const EnterOtp = () => {
                   src="/admin-assets/document.svg"
                   alt=""
                   className="object-cover w-8 h-8 p-1 bg-[#6000DA12] rounded-lg"
+                  width={32}
+                  height={32}
                 />
                 <div className="flex flex-col gap-1">
                   <p className="text-xs font-sans font-semibold">+ 34</p>
@@ -209,6 +206,8 @@ const EnterOtp = () => {
                   src="/admin-assets/onboard.svg"
                   alt=""
                   className="object-cover w-8 h-8 p-1 bg-[#6000DA12] rounded-lg"
+                  width={32}
+                  height={32}
                 />
                 <div className="flex flex-col gap-1">
                   <p className="text-xs font-sans font-semibold">+ 42</p>
@@ -229,6 +228,8 @@ const EnterOtp = () => {
                       src="/admin-assets/profile2.svg"
                       alt=""
                       className="object-cover w-8 h-8 rounded-full"
+                      width={32}
+                      height={32}
                     />
                     <div className="flex flex-col gap-1">
                       <p className="text-xs font-sans font-semibold">Sharon Wanjiku</p>

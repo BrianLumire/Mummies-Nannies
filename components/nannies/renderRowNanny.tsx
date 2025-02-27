@@ -9,6 +9,32 @@ export const renderRowNanny = (
   selectedButton: string,
   router: ReturnType<typeof useRouter>
 ) => {
+  // Function to render each available service badge with its own border
+  const renderAvailableForBadges = (services: string) => {
+    // Split the services string by comma and trim spaces
+    const serviceArray =
+      services && services !== "N/A" ? services.split(",").map(s => s.trim()) : [];
+    if (serviceArray.length === 0) return <span>N/A</span>;
+    return (
+      <div className="flex flex-wrap gap-1">
+        {serviceArray.map((service, index) => (
+          <div
+            key={index}
+            className="px-2 py-1 text-xs font-inter border border-black bg-white rounded-lg"
+          >
+            {service}
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  // Helper to format phone number with +254 prefix
+  const formatPhone = (phone: string) => {
+    if (!phone) return "N/A";
+    return phone.startsWith("+254") ? phone : `+254${phone}`;
+  };
+
   if (selectedButton === "Available Nannies") {
     return (
       <tr key={item.id} className="border-b border-gray-300 hover:bg-gray-50">
@@ -21,7 +47,7 @@ export const renderRowNanny = (
         </td>
         {/* Phone */}
         <td className="px-3 py-3 text-xs font-inter whitespace-nowrap max-w-[80px] sm:whitespace-normal">
-          {item.phone}
+          {formatPhone(item.phone)}
         </td>
         {/* Location */}
         <td className="px-3 py-3 text-xs font-inter whitespace-nowrap max-w-[80px] sm:whitespace-normal">
@@ -33,9 +59,7 @@ export const renderRowNanny = (
         </td>
         {/* Available For */}
         <td className="px-3 py-3 text-xs font-inter whitespace-nowrap max-w-[80px] sm:whitespace-normal">
-        <div className="px-2 py-1 text-xs font-inter border border-black bg-white rounded-lg">
-          {item.availablefor}
-          </div>
+          {renderAvailableForBadges(item.availablefor)}
         </td>
         {/* Work Type */}
         <td className="px-3 py-3 text-xs font-inter whitespace-nowrap max-w-[80px] sm:whitespace-normal">
@@ -58,7 +82,7 @@ export const renderRowNanny = (
     return (
       <tr key={item.id} className="border-b border-gray-300 hover:bg-gray-50">
         {/* Name */}
-        <td className="px-3 py-3 text-xs  font-inter whitespace-nowrap sm:whitespace-normal">
+        <td className="px-3 py-3 text-xs font-inter whitespace-nowrap sm:whitespace-normal">
           <button className="flex items-center gap-3" onClick={() => router.push(`/admin/nannies/${item.id}`)}>
             <Image src={item.avatar_url} alt={`${item.full_name}'s photo`} width={40} height={40} className="rounded-full" />
             <span className="text-xs font-inter">{item.full_name}</span>
@@ -66,7 +90,7 @@ export const renderRowNanny = (
         </td>
         {/* Phone */}
         <td className="px-3 py-3 text-xs font-inter whitespace-nowrap sm:whitespace-normal">
-          {item.phone}
+          {formatPhone(item.phone)}
         </td>
         {/* Location */}
         <td className="px-3 py-3 text-xs font-inter whitespace-nowrap sm:whitespace-normal">
@@ -78,9 +102,7 @@ export const renderRowNanny = (
         </td>
         {/* Available For */}
         <td className="px-3 py-3 text-xs font-inter whitespace-nowrap sm:whitespace-normal">
-          <div className="px-2 py-1 text-xs font-inter border border-black bg-white rounded-lg">
-          {item.availablefor}
-          </div>
+          {renderAvailableForBadges(item.availablefor)}
         </td>
         {/* Work Type */}
         <td className="px-3 py-3 text-xs font-inter whitespace-nowrap sm:whitespace-normal">

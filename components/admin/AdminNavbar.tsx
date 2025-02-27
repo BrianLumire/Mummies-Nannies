@@ -117,6 +117,8 @@ export const AdminNavbar = ({
             src="/admin-assets/profile1.svg"
             alt=""
             className="object-cover w-8 h-8 rounded-full"
+            width={32}
+            height={32}
           />
           <div className="flex flex-col gap-1">
             <p className="text-xs font-sans">I.am Wangari</p>

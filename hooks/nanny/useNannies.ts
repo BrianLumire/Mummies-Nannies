@@ -1,23 +1,21 @@
-"use client";
 import { useState, useEffect } from "react";
 import { createClient } from "@/supabase/client";
 import { Database } from "@/database.types";
 
-// Extended interface with additional fields
 export interface NannyData {
   id: string;
-  full_name: string;       // from user_accounts.full_name
-  avatar_url: string;      // from user_accounts.avatar_url
-  phone: string;           // from user_accounts.phone
-  location: string | null; // from nannies.location
+  full_name: string;
+  avatar_url: string;
+  phone: string;
+  location: string | null;
   is_available: boolean;
   rating: number | null;
   work_type: Database["public"]["Tables"]["nannies"]["Row"]["work_type"];
-  budget_range: string;    // derived from salary_ranges.label
-  availablefor: string;    // default value: "Special Needs"
-  last_seen: string;       // fixed for unavailable: "Feb 2, 2025 08:45am"
-  reason: string;          // fixed for unavailable: "Recently hired"
-  offers: string;          // default "N/A"
+  budget_range: string; 
+  availablefor: string; // Now dynamically set from the join
+  last_seen: string; 
+  reason: string; 
+  offers: string;
 }
 
 export const useNannies = (availability: "available" | "unavailable") => {
@@ -30,7 +28,7 @@ export const useNannies = (availability: "available" | "unavailable") => {
       setLoading(true);
       const supabase = createClient();
 
-      // Select specific columns from nannies and join user_accounts and salary_ranges.
+      // Extended query to join _nanniesToServices and then nanny_services
       const { data: nanniesData, error: queryError } = await supabase
         .from("nannies")
         .select(`
@@ -39,13 +37,10 @@ export const useNannies = (availability: "available" | "unavailable") => {
           is_available,
           rating,
           work_type,
-          salary_ranges (
-            label
-          ),
-          user_accounts (
-            full_name,
-            avatar_url,
-            phone
+          salary_ranges ( label ),
+          user_accounts ( full_name, avatar_url, phone ),
+          _nanniesToServices ( 
+            nanny_services ( label )
           )
         `)
         .eq("is_available", availability === "available" ? true : false);
@@ -54,21 +49,29 @@ export const useNannies = (availability: "available" | "unavailable") => {
         setError(queryError.message);
         setData([]);
       } else if (nanniesData) {
-        const transformed: NannyData[] = nanniesData.map((nanny: any) => ({
-          id: nanny.id,
-          full_name: nanny.user_accounts?.full_name || "N/A",
-          avatar_url: nanny.user_accounts?.avatar_url || "/admin-assets/profile1.svg",
-          phone: nanny.user_accounts?.phone || "",
-          location: nanny.location,
-          is_available: nanny.is_available,
-          rating: nanny.rating,
-          work_type: nanny.work_type,
-          budget_range: nanny.salary_ranges?.label || "N/A",
-          availablefor: "Special Needs",             // Default value
-          last_seen: "Feb 2, 2025 08:45am",           // Fixed value for unavailable view
-          reason: "Recently hired",                  // Fixed value for unavailable view
-          offers: "N/A",                             // Default; update if needed later
-        }));
+        // Transform each nanny record to include a combined "availablefor" string
+        const transformed: NannyData[] = nanniesData.map((nanny: any) => {
+          // Extract service labels from the join result
+          const services = nanny._nanniesToServices?.map((s: any) => s.nanny_services?.label) || [];
+          // Join the labels into a comma-separated string (or adjust as desired)
+          const availablefor = services.length > 0 ? services.join(", ") : "N/A";
+
+          return {
+            id: nanny.id,
+            full_name: nanny.user_accounts?.full_name || "N/A",
+            avatar_url: nanny.user_accounts?.avatar_url || "/admin-assets/profile1.svg",
+            phone: nanny.user_accounts?.phone || "",
+            location: nanny.location,
+            is_available: nanny.is_available,
+            rating: nanny.rating,
+            work_type: nanny.work_type,
+            budget_range: nanny.salary_ranges?.label || "N/A",
+            availablefor,
+            last_seen: "Feb 2, 2025 08:45am",
+            reason: "Recently hired",
+            offers: "N/A",
+          };
+        });
         setData(transformed);
       }
       setLoading(false);

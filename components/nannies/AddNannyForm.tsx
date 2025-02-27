@@ -21,7 +21,7 @@ const AddNannyForm: React.FC = () => {
   const images = watch("images");
   const router = useRouter();
 
-  const onSubmit = async ( ) => {
+  const onSubmit = async (_data: NannyFormValues) => {
     try {
       // Here, you'll integrate with Supabase to create a new nanny
       // For example, upload images first and get URLs, then insert the nanny record.

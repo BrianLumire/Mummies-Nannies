@@ -48,7 +48,8 @@ const RecoverPassword = () => {
             animate={{ scale: 1 }}
             transition={{ duration: 0.3 }}
           >
-            <Image src="/admin-assets/nanies-icon.svg" alt="" className="w-[45px] h-[45px] hover:scale-105 transition-transform duration-200" />
+            <Image src="/admin-assets/nanies-icon.svg" alt=""  width={32} // Provide the width in pixels
+  height={32} className="w-[45px] h-[45px] hover:scale-105 transition-transform duration-200" />
             <span className="mb-4 font-medium text-[#6000DA] font-lemon text-lg hover:text-[#4a00ae] transition-colors duration-200">
               Nannies
             </span>
@@ -111,7 +112,7 @@ const RecoverPassword = () => {
             >
               <div className="rounded-lg p-2 gap-2 flex items-center bg-[#ffffffda] hover:bg-white transition-colors duration-200">
               <Image
-  src="/admin-assets/profile1.svg"
+  src="/admin-assets/"
   alt=""
   className="object-cover w-8 h-8 rounded-full"
   width={32} // Provide the width in pixels
@@ -131,14 +132,16 @@ const RecoverPassword = () => {
               className="flex gap-2 items-center mx-3 mb-3"
             >
               <div className="bg-[#ffffffda] w-1/2 rounded-lg p-3 gap-2 flex items-center hover:bg-white transition-colors duration-200">
-                <Image src="/admin-assets/document.svg" alt="" className="object-cover w-8 h-8 p-1 bg-[#6000DA12] rounded-lg"/>
+                <Image src="/admin-assets/document.svg" alt="" className="object-cover w-8 h-8 p-1 bg-[#6000DA12] rounded-lg" width={32} // Provide the width in pixels
+  height={32}/>
                 <div className="flex flex-col gap-1">
                   <p className="text-xs font-sans font-semibold">+ 34</p>
                   <span className="text-[10px]">Hired Nannies</span>
                 </div>
               </div>
               <div className="bg-[#ffffffda] w-1/2 rounded-lg p-3 gap-2 flex items-center hover:bg-white transition-colors duration-200">
-                <Image src="/admin-assets/onboard.svg" alt="" className="object-cover w-8 h-8 p-1 bg-[#6000DA12] rounded-lg"/>
+                <Image src="/admin-assets/onboard.svg" alt="" className="object-cover w-8 h-8 p-1 bg-[#6000DA12] rounded-lg"  width={32} // Provide the width in pixels
+  height={32}/>
                 <div className="flex flex-col gap-1">
                   <p className="text-xs font-sans font-semibold">+ 42</p>
                   <span className="text-[10px]">Nannies Onboarded</span>
@@ -155,7 +158,8 @@ const RecoverPassword = () => {
               <div className="bg-[#ffffffda] w-[65%] rounded-lg p-2 gap-2 flex flex-col hover:bg-white transition-colors duration-200">
                 <div className="flex justify-between items-center">
                   <div className="flex gap-2">
-                    <Image src="/admin-assets/profile2.svg" alt="" className="object-cover w-8 h-8 rounded-full"/>
+                    <Image src="/admin-assets/profile2.svg" alt="" className="object-cover w-8 h-8 rounded-full"  width={32} // Provide the width in pixels
+  height={32}/>
                     <div className="flex flex-col gap-1">
                       <p className="text-xs font-sans font-semibold">Sharon Wanjiku</p>
                       <span className="text-[10px]">Received 32 min ago</span>

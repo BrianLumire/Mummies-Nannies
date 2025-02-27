@@ -20,6 +20,7 @@ const CreatePassword = () => {
       return;
     }
     setIsLoading(true);
+   
     try {
       const client = createClient();
       // Check if there's an active session
@@ -73,6 +74,8 @@ const CreatePassword = () => {
               src="/admin-assets/nanies-icon.svg"
               alt="Nannies Icon"
               className="w-[45px] h-[45px] hover:scale-105 transition-transform duration-200"
+              width={32} 
+              height={32}
             />
             <span className="mb-4 font-medium text-[#6000DA] font-lemon text-lg hover:text-[#4a00ae] transition-colors duration-200">
               Nannies
@@ -209,6 +212,8 @@ const CreatePassword = () => {
                   src="/admin-assets/document.svg"
                   alt=""
                   className="object-cover w-8 h-8 p-1 bg-[#6000DA12] rounded-lg"
+                  width={32} 
+                  height={32}
                 />
                 <div className="flex flex-col gap-1">
                   <p className="text-xs font-sans font-semibold">+ 34</p>
@@ -220,6 +225,8 @@ const CreatePassword = () => {
                   src="/admin-assets/onboard.svg"
                   alt=""
                   className="object-cover w-8 h-8 p-1 bg-[#6000DA12] rounded-lg"
+                  width={32} 
+                  height={32}
                 />
                 <div className="flex flex-col gap-1">
                   <p className="text-xs font-sans font-semibold">+ 42</p>
@@ -241,6 +248,8 @@ const CreatePassword = () => {
                       src="/admin-assets/profile2.svg"
                       alt=""
                       className="object-cover w-8 h-8 rounded-full"
+                      width={32} 
+                      height={32}
                     />
                     <div className="flex flex-col gap-1">
                       <p className="text-xs font-sans font-semibold">Sharon Wanjiku</p>

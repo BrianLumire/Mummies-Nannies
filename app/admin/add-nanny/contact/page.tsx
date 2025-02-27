@@ -32,7 +32,7 @@ const ContactInfoPage: React.FC = () => {
   ]);
 
   // This state will hold the generated user UUID (for debugging; not used elsewhere)
-  //const [userId, setUserId] = useState<string>("");
+  const [userId, setUserId] = useState<string>("");
 
   // Function to invoke Supabase function to create a new user account
   const generateUserId = async (phone: string): Promise<string> => {
@@ -156,6 +156,7 @@ const ContactInfoPage: React.FC = () => {
                   width={20}
                   height={20}
                   className="absolute top-1/2 left-3 transform -translate-y-1/2"
+
                 />
                 <input
                   type="text"
