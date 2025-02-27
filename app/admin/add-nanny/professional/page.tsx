@@ -62,9 +62,9 @@ const ProfessionalInfoPage: React.FC = () => {
 
   // Number of Kids Preferred Options
   const numberOfKidsOptions = [
-    { id: "b5c6d7e8-1111-2222-3333-444444444444", label: "Any number" },
+    { id: "f37225a6-c23c-44c2-aea2-355ab926779b", label: "Any number" },
     { id: "e59ee259-259d-42c2-ae42-9845c556e4e7", label: "1-2 kids" },
-    { id: "e8f9a0b1-1111-2222-3333-444444444444", label: "1-5 kids" },
+    { id: "e00f0254-e361-4ee3-9ca0-fbd72b92563c", label: "1-5 kids" },
   ];
   const [numberOfKidsPreferred, setNumberOfKidsPreferred] = useState<string>("");
 
