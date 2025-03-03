@@ -41,6 +41,27 @@ const formatDate = (timestamp: string): string => {
   return date.toLocaleString("en-US", options);
 };
 
+// Define an interface for the fetched record from Supabase.
+interface MammiesRecord {
+  id: string;
+  location: string | null;
+  nanny_services: ("special_needs" | "elderly" | "childcare")[] | null;
+  is_suspended: boolean;
+  mammy_suspension_reason_id: string | null;
+  user_accounts: {
+    full_name: string | null;
+    phone: string | null;
+    avatar_url: string | null;
+    created_at: string;
+  } | null;
+  salary_ranges: {
+    label: string;
+  } | null;
+  mammy_suspension_reasons: {
+    label: string;
+  } | null;
+}
+
 const MummiesPage = () => {
   const [selectedButton, setSelectedButton] = useState("Active Mummies");
   const [searchTerm, setSearchTerm] = useState("");
@@ -87,13 +108,13 @@ const MummiesPage = () => {
       }
       if (data) {
         // Map returned data into Mummy objects.
-        const mummies: Mummy[] = data.map((record: any) => {
+        const mummies: Mummy[] = data.map((record: MammiesRecord) => {
           return {
             id: record.id,
             // From user_accounts:
             name: record.user_accounts?.full_name || "Unknown",
             photo: record.user_accounts?.avatar_url || "/admin-assets/profile1.svg",
-            phonenumber: record.user_accounts?.phone || 0,
+            phonenumber: record.user_accounts?.phone ? Number(record.user_accounts.phone) : 0,
             lastseen: record.user_accounts?.created_at
               ? formatDate(record.user_accounts.created_at)
               : "N/A",
@@ -190,18 +211,18 @@ const MummiesPage = () => {
           </span>
         </div>
         <div>
-        <button
-  onClick={() => {
-    // Clear any stored mummyUserId and onboarding step to start a fresh session
-    localStorage.removeItem("mummyUserId");
-    sessionStorage.removeItem("mummyOnboardingStep"); // CLEAR THE SESSION STORAGE
-    setShowAddMummyFlow(true);
-  }}
-  className="flex items-center gap-2 px-6 py-2 rounded-lg bg-purple-700"
->
-  <Image src="/admin-assets/add-icon.svg" alt="Add Mummy" width={13} height={13} />
-  <span className="text-white text-sm">Add Mummy</span>
-</button>
+          <button
+            onClick={() => {
+              // Clear any stored mummyUserId and onboarding step to start a fresh session
+              localStorage.removeItem("mummyUserId");
+              sessionStorage.removeItem("mummyOnboardingStep"); // CLEAR THE SESSION STORAGE
+              setShowAddMummyFlow(true);
+            }}
+            className="flex items-center gap-2 px-6 py-2 rounded-lg bg-purple-700"
+          >
+            <Image src="/admin-assets/add-icon.svg" alt="Add Mummy" width={13} height={13} />
+            <span className="text-white text-sm">Add Mummy</span>
+          </button>
         </div>
       </div>
 

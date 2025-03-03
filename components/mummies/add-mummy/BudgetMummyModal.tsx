@@ -60,7 +60,7 @@ const BudgetMummyModal: React.FC<BudgetMummyModalProps> = ({ onClose, onComplete
     const supabase = createClient();
 
     setSubmitting(true); // CHANGE: Set submitting to true at beginning of submission
-
+    
     try {
       const { data: upsertedData, error } = await supabase
         .from("mammies")
@@ -75,11 +75,12 @@ const BudgetMummyModal: React.FC<BudgetMummyModalProps> = ({ onClose, onComplete
       toast.success("Mummy has been onboarded successfully!");
       setSubmitting(false); // CHANGE: Reset submitting at end of submission
       onComplete();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Unexpected error:", err);
       toast.error("An unexpected error occurred. Please try again.");
-      setSubmitting(false); // CHANGE: Reset submitting on error
+      setSubmitting(false);
     }
+    
   };
 
   return (
@@ -122,9 +123,10 @@ const BudgetMummyModal: React.FC<BudgetMummyModalProps> = ({ onClose, onComplete
           <div className="w-full p-3 space-y-6">
             <h2 className="font-barlow font-semibold text-lg mb-4">Set Budget</h2>
             <div>
-              <label className="block font-barlow text-sm font-medium text-gray-700 mb-2">
-                Select the mummy's budget for a nanny
-              </label>
+            <label className="block font-barlow text-sm font-medium text-gray-700 mb-2">
+  Select the mummy&apos;s budget for a nanny
+</label>
+
               <div className="flex gap-4 flex-wrap">
                 {["6k-9k", "10k-15k", "16k-20k", "Above 20k"].map((option) => (
                   <button

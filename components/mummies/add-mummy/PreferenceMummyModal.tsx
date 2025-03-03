@@ -35,6 +35,12 @@ interface Tribe {
   label: string;
 }
 
+// Define an interface for the row returned by the tribe query.
+interface TribeRow {
+  B: string;
+  tribes: Tribe;
+}
+
 const PreferenceMummyModal: React.FC<PreferenceMummyModalProps> = ({ onClose, onBack, onNext }) => {
   // Moved inside the component
   const [submitting, setSubmitting] = useState(false); // CHANGE: Added submission state inside the component
@@ -72,7 +78,7 @@ const PreferenceMummyModal: React.FC<PreferenceMummyModalProps> = ({ onClose, on
       setTribeSuggestions([]);
       return;
     }
-    const { data, error } = await (client.rpc as any)("search_tribe", { tribe_name: searchTerm });
+    const { data, error } = await client.rpc<Tribe[]>("search_tribe", { tribe_name: searchTerm });
     if (error) {
       console.error("Error searching tribes:", error);
       return;
@@ -132,7 +138,7 @@ const PreferenceMummyModal: React.FC<PreferenceMummyModalProps> = ({ onClose, on
     }
     if (tribeData) {
       const tribesFromDB: Tribe[] = tribeData
-        .map((row: any) => row.tribes)
+        .map((row: TribeRow) => row.tribes)
         .filter(Boolean);
       setSelectedTribes(tribesFromDB);
     }
@@ -188,7 +194,8 @@ const PreferenceMummyModal: React.FC<PreferenceMummyModalProps> = ({ onClose, on
       setSubmitting(false); // CHANGE: Reset submitting on error
       return;
     }
-  
+   
+
     const { error: deleteError } = await client
       .from("_mammyToPreferredTribe")
       .delete()

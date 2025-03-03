@@ -107,7 +107,7 @@ const EditBudgetMummyModal: React.FC<BudgetMummyModalProps> = ({ onClose, onComp
       toast.success("Mummy has been updated successfully!");
       setLoading(false);
       onComplete();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Unexpected error:", err);
       toast.error("An unexpected error occurred. Please try again.");
       setLoading(false);
@@ -159,9 +159,10 @@ const EditBudgetMummyModal: React.FC<BudgetMummyModalProps> = ({ onClose, onComp
             <div className="w-full p-3 space-y-6">
               <h2 className="font-barlow font-semibold text-lg mb-4">Set Budget</h2>
               <div>
-                <label className="block font-barlow text-sm font-medium text-gray-700 mb-2">
-                  Select the mummy's budget for a nanny
-                </label>
+              <label className="block font-barlow text-sm font-medium text-gray-700 mb-2">
+  Select the mummy&apos;s budget for a nanny
+</label>
+
                 <div className="flex gap-4 flex-wrap">
                   {["6k-9k", "10k-15k", "16k-20k", "Above 20k"].map((option) => (
                     <button

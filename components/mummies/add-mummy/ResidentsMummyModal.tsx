@@ -45,10 +45,7 @@ const reverseAgeRangeMapping: Record<"zero_to_one" | "one_to_three" | "three_and
   three_and_above: "3 years and above",
 };
 
-interface Tribe {
-  id: string;
-  label: string;
-}
+
 
 const PreferenceMummyModal: React.FC<ResidentsMummyModalProps> = ({ onClose, onNext, onBack }) => {
   const { handleSubmit } = useForm<ResidentsFormValues>({
@@ -285,9 +282,10 @@ const PreferenceMummyModal: React.FC<ResidentsMummyModalProps> = ({ onClose, onN
 
             {/* Mummy Location Input */}
             <div>
-              <label className="block font-barlow text-sm font-medium text-gray-700 mb-2">
-                Enter Mummy's Location
-              </label>
+            <label className="block font-barlow text-sm font-medium text-gray-700 mb-2">
+  Enter Mummy&apos;s Location
+</label>
+
               <input
                 type="text"
                 placeholder="Enter location"

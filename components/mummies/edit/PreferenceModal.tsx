@@ -6,7 +6,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
 import { createClient } from "@/supabase/client";
-import { Database } from "@/database.types";
 
 // Schema for preference modal (no additional form fields for now)
 const preferenceSchema = z.object({});

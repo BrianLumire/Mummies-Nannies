@@ -77,20 +77,24 @@ const ServiceMummy: React.FC<ServiceMummyProps> = ({ onClose, onBack, onNext }) 
       return;
     }
     const { data, error } = await client
-      .from("mammies")
-      .select("*")
-      .eq("user_id", mummyUserId)
-      .maybeSingle();
-
-    if (error) {
-      console.error("Error fetching service data:", error);
-      return;
-    }
-
-    if (data?.nanny_services) {
-      // Assuming nanny_services is stored as an array.
-      setSelectedServices(data.nanny_services);
-    }
+    .from("mammies")
+    .select("*")
+    .eq("user_id", mummyUserId)
+    .maybeSingle();
+  
+  if (error) {
+    console.error("Error fetching service data:", error);
+    return;
+  }
+  
+  if (data) {
+    console.log("Fetched data:", data); // Optional: Log data for debugging
+  }
+  
+  if (data?.nanny_services) {
+    setSelectedServices(data.nanny_services);
+  }
+  
     
   };
 
