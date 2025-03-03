@@ -25,21 +25,40 @@ const ProfessionalModal: React.FC<ProfessionalModalProps> = ({
   const [salaryRangeId, setSalaryRangeId] = useState<string>(""); // The selected salary_range id
   const [yearsOfExperience, setYearsOfExperience] = useState<number>(0);
 
-  // Options arrays
+  // Mapping objects: convert UI-friendly labels into the allowed database literal values.
+  const nannyServicesMap: Record<string, "childcare" | "elderly" | "special_needs"> = {
+    "Child Care": "childcare",
+    "Elderly Care": "elderly",
+    "Special Needs Care": "special_needs",
+  };
+
+  const ageGroupMap: Record<string, "zero_to_one" | "one_to_three" | "three_and_above"> = {
+    "0-1 year": "zero_to_one",
+    "1-3 years": "one_to_three",
+    "3 years and above": "three_and_above",
+  };
+
+  const kidsCountMap: Record<string, "one_to_two" | "one_to_five" | "more_than_five"> = {
+    "Any number": "more_than_five",
+    "1-2 kids": "one_to_two",
+    "1-5 kids": "one_to_five",
+  };
+
+  // Options arrays – note: the id values here are the UI labels; we will convert them using the maps.
   const servicesAvailableOptions = [
-    { id: "ebf7459e-1f21-43e3-9411-519a2b39189f", label: "Child Care" },
-    { id: "30f143cf-410f-49bb-af41-48577265a663", label: "Elderly Care" },
-    { id: "991de8ec-f799-4fb7-aef4-711f3810c617", label: "Special Needs Care" },
+    { id: "Child Care", label: "Child Care" },
+    { id: "Elderly Care", label: "Elderly Care" },
+    { id: "Special Needs Care", label: "Special Needs Care" },
   ];
   const preferredAgeGroupOptions = [
-    { id: "49650c6e-d92d-40e7-aeea-5227922f5f52", label: "0-1 year" },
-    { id: "ad2d12e1-f01c-44a2-9004-ac1145aeb525", label: "1-3 years" },
-    { id: "f69660af-23fb-4564-b283-b18226d161b8", label: "3 years and above" },
+    { id: "0-1 year", label: "0-1 year" },
+    { id: "1-3 years", label: "1-3 years" },
+    { id: "3 years and above", label: "3 years and above" },
   ];
   const numberOfKidsOptions = [
-    { id: "f37225a6-c23c-44c2-aea2-355ab926779b", label: "Any number" },
-    { id: "e59ee259-259d-42c2-ae42-9845c556e4e7", label: "1-2 kids" },
-    { id: "e00f0254-e361-4ee3-9ca0-fbd72b92563c", label: "1-5 kids" },
+    { id: "Any number", label: "Any number" },
+    { id: "1-2 kids", label: "1-2 kids" },
+    { id: "1-5 kids", label: "1-5 kids" },
   ];
   const preferredSpecialNeedsOptions = [
     { id: "44918e94-553b-4a7e-bacc-b0b46c0ca446", label: "Speech" },
@@ -50,11 +69,11 @@ const ProfessionalModal: React.FC<ProfessionalModalProps> = ({
     { id: "fc56f0d4-be96-403b-86f3-dd8d51ded871", label: "Autism" },
   ];
   const educationLevelOptions = [
-    { id: "high_school", label: "High School" },
-    { id: "associate", label: "Associate" },
-    { id: "bachelor", label: "Bachelor" },
-    { id: "master", label: "Master" },
-    { id: "doctorate", label: "Doctorate" },
+    { id: "high_school", label: "high_school" },
+    { id: "associate", label: "associate" },
+    { id: "bachelor", label: "bachelor" },
+    { id: "master", label: "master" },
+    { id: "doctorate", label: "doctorate" },
   ];
   const salaryRangeOptions = [
     { id: "5c5dfaf7-0240-4b6e-b814-e320712009e2", label: "6k - 9k" },
@@ -81,31 +100,33 @@ const ProfessionalModal: React.FC<ProfessionalModalProps> = ({
     e.preventDefault();
     console.log("Complete pressed");
 
-    const client = createClient(); // Ensure you're using your initialized supabase client
+    const client = createClient(); // Use your initialized Supabase client
     const nannyId = localStorage.getItem("nannyId");
     if (!nannyId) {
       console.error("No nanny ID found");
       return;
     }
 
-    // Prepare data for nannies table
+    // Prepare data with proper conversions:
     const nannyData = {
       id: nannyId,
-      // Convert empty string to null if needed
       education_level: educationLevel === "" ? null : educationLevel,
       salary_range_id: salaryRangeId === "" ? null : salaryRangeId,
-      years_of_experience: yearsOfExperience, // already a number
+      years_of_experience: yearsOfExperience,
       work_type: selectedWorkTerm === "" ? null : selectedWorkTerm,
-      nanny_services: selectedServices,
-      // Convert preferred kids count to number if needed; here we assume if empty, set to null
-      preferred_kids_count: numberOfKidsPreferred === "" ? null : parseInt(numberOfKidsPreferred, 10),
-      preferred_age_group: preferredAgeGroup === "" ? null : preferredAgeGroup,
+      // Convert selectedServices using the mapping object
+      nanny_services: selectedServices.map((service) => nannyServicesMap[service]),
+      // Convert preferred kids count using mapping
+      preferred_kids_count: numberOfKidsPreferred === "" ? null : [kidsCountMap[numberOfKidsPreferred]],
+
+      // Wrap the mapped age group value in an array because DB expects an array
+      preferred_age_group: preferredAgeGroup === "" ? null : [ageGroupMap[preferredAgeGroup]],
     };
 
-    // Upsert the main professional details into the nannies table
+    // Wrap nannyData in an array because upsert expects an array of rows
     const { error: nannyError } = await client
       .from("nannies")
-      .upsert(nannyData, { onConflict: "id" });
+      .upsert([nannyData], { onConflict: "id" });
     if (nannyError) {
       console.error("Error updating nanny details", nannyError);
       return;
@@ -122,7 +143,7 @@ const ProfessionalModal: React.FC<ProfessionalModalProps> = ({
       return;
     }
 
-    // Insert new rows for each selected special need
+    // Insert new rows for each selected special need (assumed to be correct IDs)
     const specialNeedsRows = selectedSpecialNeeds.map((specialNeedId) => ({
       A: nannyId,
       B: specialNeedId,
@@ -145,7 +166,9 @@ const ProfessionalModal: React.FC<ProfessionalModalProps> = ({
           {/* Title and Progress Sections */}
           <div className="w-full p-3 sm:w-[70%] md:w-[80%] mx-auto">
             <div className="flex items-center mb-5 border-b justify-between">
-              <h1 className="font-barlow font-semibold text-lg">Onboard New Nanny - Professional Info</h1>
+              <h1 className="font-barlow font-semibold text-lg">
+                Onboard New Nanny - Professional Info
+              </h1>
               <button
                 type="button"
                 onClick={onClose}

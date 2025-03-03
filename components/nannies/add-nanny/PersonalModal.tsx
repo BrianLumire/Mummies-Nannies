@@ -5,6 +5,54 @@ import { ChevronDown } from "lucide-react";
 import { createClient } from "@/supabase/client";
 import { toast } from "sonner";
 
+// Constant array of tribes as provided.
+const tribes = [
+  { id: "02979904-c90c-4c69-82d6-28765d1e9611", label: "Sengwer" },
+  { id: "03157a93-c454-4af8-86d0-dee4a5d20459", label: "Sabaot" },
+  { id: "045b58d9-1098-4173-9b18-5cfd91c6e418", label: "Kamba" },
+  { id: "078c0a55-6970-499a-aee7-47fed014a819", label: "Basuba" },
+  { id: "07d93f67-9cf0-4de0-b749-a1153267f675", label: "Tugen" },
+  { id: "08f56736-6e1c-4751-bbc1-fd98b9553571", label: "Gusii" },
+  { id: "09d451e0-a891-4ec6-a2b8-8cd9873049a6", label: "Taveta" },
+  { id: "17fd8ebe-dffa-490c-86a1-4b75c24b0e4e", label: "Terik" },
+  { id: "1b6d55bd-4306-4bce-8b55-7758cb607435", label: "Njemps (Ilchamus)" },
+  { id: "1bef8061-1a48-4efc-a3d3-adc3bc8e0a45", label: "Swahili" },
+  { id: "207e5a86-0c81-4a5c-a53e-3a76d46ff488", label: "Embu" },
+  { id: "281161f5-08ed-4bdf-a9af-615f3e8b2527", label: "Kikuyu" },
+  { id: "2bfae3e6-010d-4c03-a368-5b4e07df9fcd", label: "Burji" },
+  { id: "2c4e4f36-a7d4-4cc0-b1b2-3ed349728c03", label: "Waata" },
+  { id: "37bb2c92-977e-406b-9caf-9f86608cbd92", label: "Marakwet" },
+  { id: "39c28ee2-f98e-4e3e-b030-68e4453fe68a", label: "Rendille" },
+  { id: "4464dc17-2493-45df-a901-8596caa42bb6", label: "Kalenjin" },
+  { id: "46624399-4ba0-43a1-bf24-e52334405adb", label: "Ogiek" },
+  { id: "730b8f71-15ee-494f-97a2-7a8ff71d1f0f", label: "Taita" },
+  { id: "778becc7-cb42-4054-a54d-4f5c01bb3423", label: "Samburu" },
+  { id: "8034904a-3391-4d72-b041-a24a593f7c22", label: "Somali" },
+  { id: "82f923a7-ddcd-404e-b9ca-472afdcd949d", label: "Meru" },
+  { id: "83391aad-b79b-400a-9e1b-abf6dc18ae18", label: "Sakuye" },
+  { id: "86856a1a-e41f-44ff-9c07-3d510f66f4f6", label: "Other" },
+  { id: "91e8d735-e564-41fd-b93c-d783c5998413", label: "Endorois" },
+  { id: "93cc1c68-1196-4f4f-855e-7e7f3aecad45", label: "Dorobo" },
+  { id: "942b9550-8698-4ac1-a85c-00cb44857eab", label: "Pokot" },
+  { id: "98eede80-2f23-4199-b9dd-eba4c3bd654b", label: "Kurya" },
+  { id: "992f14ce-3bc6-437d-adad-4393b6c031f0", label: "Orma" },
+  { id: "99b7bd11-8be8-438c-9542-e0fbee51f538", label: "Nandi" },
+  { id: "a66af293-ecfd-4fae-8c7b-8545f299b079", label: "Turkana" },
+  { id: "aa03b772-69a8-43cf-b003-8dd78dd44364", label: "Pokomo" },
+  { id: "aff04504-89e7-438f-8b10-da1e20395091", label: "Borana" },
+  { id: "c14c22ee-be3c-4bcd-a3f9-3b93c15c6ebf", label: "Boni (Aweer)" },
+  { id: "ca83864f-2cbd-4cd4-88f3-24564ef63533", label: "Mijikenda" },
+  { id: "caf49d4e-c054-4622-9cf0-f9159cdaaae8", label: "El Molo" },
+  { id: "cb2abc85-c55a-4d89-b6ac-8ab2e85000bf", label: "Maasai" },
+  { id: "ccdd79e8-1cd3-4aac-a0a6-0af12bd1fe50", label: "Luo" },
+  { id: "dec13e28-8705-406d-8bba-abcf8bfb070b", label: "Keiyo" },
+  { id: "e7ccdd27-bc73-4dea-bc72-e742d1659b27", label: "Gabbra" },
+  { id: "edd7effd-50f7-49e8-8be1-c0857e0952a5", label: "Bajuni" },
+  { id: "f55d868c-4785-41ad-bf42-a85bed28f3fa", label: "Suba" },
+  { id: "fb6dab80-80b7-4cbf-bb73-6f76d921da73", label: "Luhya" },
+  { id: "fdf3a968-01ce-4e61-a5e1-47e4ce4d4d84", label: "Dahalo" },
+];
+
 interface PersonalModalProps {
   onNext: () => void;
   onBack: () => void;
@@ -15,7 +63,8 @@ const PersonalModal: React.FC<PersonalModalProps> = ({ onNext, onBack, onClose }
   // State for form fields
   const [nationality, setNationality] = useState("");
   const [religion, setReligion] = useState("");
-  const [tribe, setTribe] = useState(""); // This will store the tribe_id
+  // Now tribe holds the tribe UUID, not just a text value.
+  const [tribe, setTribe] = useState("");
   const [nationalIdImages, setNationalIdImages] = useState<(File | string | undefined)[]>([
     undefined,
     undefined,
@@ -42,8 +91,8 @@ const PersonalModal: React.FC<PersonalModalProps> = ({ onNext, onBack, onClose }
     if (data) {
       setNationality(data.nationality || "");
       setReligion(data.religion || "");
+      // Make sure to set the UUID from your tribes table here.
       setTribe(data.tribe_id || "");
-      // Note: We don't expect a column for national_id_images here.
     }
   };
 
@@ -71,25 +120,7 @@ const PersonalModal: React.FC<PersonalModalProps> = ({ onNext, onBack, onClose }
     });
   };
 
-  // Function to upload a file to Supabase Storage in the "nannies" bucket.
-  const uploadFile = async (file: File, userId: string, type: string): Promise<string | null> => {
-    const client = createClient();
-    const filePath = `${type}_${userId}_${Date.now()}.${file.name.split(".").pop()}`;
-    const { error: uploadError } = await client.storage
-      .from("nannies")
-      .upload(filePath, file, {
-        cacheControl: "3600",
-        upsert: false,
-      });
-    if (uploadError) {
-      console.error("Error uploading file:", uploadError);
-      return null;
-    }
-    const { data } = client.storage.from("nannies").getPublicUrl(filePath);
-    return data.publicUrl;
-  };
-
-  // On form submission, upsert the nannies table record and store the primary key.
+  // On form submission, upsert the nannies table record without handling ID image uploads.
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!nationality || !religion || !tribe) {
@@ -104,28 +135,7 @@ const PersonalModal: React.FC<PersonalModalProps> = ({ onNext, onBack, onClose }
     }
     setSubmitting(true);
 
-    // Upload any new National ID images.
-    // These files are uploaded to the "nannies" bucket.
-    const uploadedImages: string[] = [];
-    for (let i = 0; i < nationalIdImages.length; i++) {
-      const img = nationalIdImages[i];
-      if (img instanceof File) {
-        const url = await uploadFile(img, nannyUserId, "national_id");
-        if (url) {
-          uploadedImages.push(url);
-        } else {
-          toast.error("Error uploading national ID image.");
-          setSubmitting(false);
-          return;
-        }
-      } else if (typeof img === "string") {
-        uploadedImages.push(img);
-      }
-    }
-
     // Upsert the record in the nannies table.
-    // Note: We do not include national_id_images in the payload because that column does not exist.
-    // We also cast the payload to "any" to bypass type errors for custom columns.
     const { data, error } = await client
       .from("nannies")
       .upsert(
@@ -134,8 +144,6 @@ const PersonalModal: React.FC<PersonalModalProps> = ({ onNext, onBack, onClose }
           nationality,
           religion: religion as "christian" | "islam" | "hindu" | "pagan" | "non_religious",
           tribe_id: tribe,
-          // Optionally, if you later add a column for national ID images, include it here.
-          // national_id_images: uploadedImages,
         } as any,
         { onConflict: "user_id" }
       )
@@ -146,7 +154,6 @@ const PersonalModal: React.FC<PersonalModalProps> = ({ onNext, onBack, onClose }
       setSubmitting(false);
       return;
     }
-    // Assuming data returns an array with the updated/inserted record, store its primary key.
     if (data && data.length > 0) {
       localStorage.setItem("nannyId", data[0].id);
     }
@@ -236,16 +243,21 @@ const PersonalModal: React.FC<PersonalModalProps> = ({ onNext, onBack, onClose }
               <div className="flex flex-col gap-4 w-full md:w-1/2">
                 <div>
                   <label htmlFor="tribe" className="block text-sm font-medium text-gray-700 font-barlow">
-                    Tribe (ID)
+                    Tribe
                   </label>
-                  <input
-                    type="text"
+                  <select
                     id="tribe"
-                    placeholder="Enter Tribe ID"
                     value={tribe}
                     onChange={(e) => setTribe(e.target.value)}
                     className="mt-1 p-2 border border-gray-300 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  />
+                  >
+                    <option value="">Select Tribe</option>
+                    {tribes.map((t) => (
+                      <option key={t.id} value={t.id}>
+                        {t.label}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
             </div>
