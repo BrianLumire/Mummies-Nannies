@@ -21,6 +21,29 @@ interface Column {
   accessor: string;
 }
 
+// Helper functions to map raw values to display strings:
+const mapKidsCount = (value: string | null | undefined) => {
+  const mapping: Record<string, string> = {
+    one_to_two: "1-2 kids",
+    one_to_five: "1-5 kids",
+    more_than_five: "More than 5 kids",
+  };
+  return value ? mapping[value] || value : "No preference";
+};
+
+const mapAgeGroup = (value: string | null | undefined) => {
+  const mapping: Record<string, string> = {
+    zero_to_one: "Upto 1 year old",
+    one_to_three: "1-3 years old",
+    three_and_above: "Over 3 years old",
+  };
+  return value ? mapping[value] || value : "No preference";
+};
+
+const mapNannyServices = (services: string[] | undefined) => {
+  return services && services.length > 0 ? services.join(", ") : "N/A";
+};
+
 const SingleNannyPage = () => {
   const { nannyData, loading, error } = useNanny();
   const [selectedTab, setSelectedTab] = useState("Profile Information");
@@ -123,7 +146,9 @@ const SingleNannyPage = () => {
                     width={23}
                     height={23}
                   />
-                  <span className="font-barlow text-sm">1-2 kids</span>
+                  <span className="font-barlow text-sm">
+                    {mapKidsCount(nannyData.preferred_kids_count)}
+                  </span>
                 </div>
               </div>
               <div className="flex flex-col md:flex-row gap-2 items-center justify-between py-4 border-b border-gray-200">
@@ -131,68 +156,24 @@ const SingleNannyPage = () => {
                   Preferred age group
                 </span>
                 <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-2">
-                    <Image
-                      src="/nannies-assets/kid-2.svg"
-                      alt="kid icon"
-                      width={23}
-                      height={23}
-                    />
-                    <span className="font-barlow text-sm">Upto 1 year old</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Image
-                      src="/nannies-assets/kid-3.svg"
-                      alt="kid icon"
-                      width={23}
-                      height={23}
-                    />
-                    <span className="font-barlow text-sm">1-3 year old</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Image
-                      src="/nannies-assets/kid-4.svg"
-                      alt="kid icon"
-                      width={23}
-                      height={23}
-                    />
-                    <span className="font-barlow text-sm">Over 3 years</span>
-                  </div>
+                  <Image
+                    src="/nannies-assets/kid-2.svg"
+                    alt="kid icon"
+                    width={23}
+                    height={23}
+                  />
+                  <span className="font-barlow text-sm">
+                    {mapAgeGroup(nannyData.preferred_age_group)}
+                  </span>
                 </div>
               </div>
               <div className="flex flex-col md:flex-row gap-2 items-center justify-between py-4">
                 <span className="font-barlow text-[#787878]">
-                  Preferred special needs to handle
+                  Available For
                 </span>
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-2">
-                    <Image
-                      src="/nannies-assets/speech.svg"
-                      alt="speech"
-                      width={23}
-                      height={23}
-                    />
-                    <span className="font-barlow text-sm">Speech</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Image
-                      src="/nannies-assets/autism.svg"
-                      alt="autism"
-                      width={23}
-                      height={23}
-                    />
-                    <span className="font-barlow text-sm">Autism</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Image
-                      src="/nannies-assets/mobility.svg"
-                      alt="mobility"
-                      width={23}
-                      height={23}
-                    />
-                    <span className="font-barlow text-sm">Mobility</span>
-                  </div>
-                </div>
+                <span className="font-barlow text-sm">
+                  {mapNannyServices(nannyData.nanny_services)}
+                </span>
               </div>
             </div>
           </div>
@@ -204,25 +185,17 @@ const SingleNannyPage = () => {
             </p>
             <div className="border p-2 border-gray-200 rounded-lg shadow-sm">
               <div className="flex flex-col md:flex-row gap-2 items-center justify-between py-4 border-b border-gray-200">
-                <span className="font-barlow text-[#787878]">Available For</span>
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center justify-center bg-[#F8F5FE] rounded-lg px-2 py-1">
-                    <span className="font-barlow text-sm">Child Care</span>
-                  </div>
-                  <div className="flex items-center justify-center bg-[#F8F5FE] rounded-lg px-2 py-1">
-                    <span className="font-barlow text-sm">Elderly Care</span>
-                  </div>
-                  <div className="flex items-center justify-center bg-[#F8F5FE] rounded-lg px-2 py-1">
-                    <span className="font-barlow text-sm">Special Needs</span>
-                  </div>
-                </div>
+                <span className="font-barlow text-[#787878]">Highest Education Level</span>
+                <span className="font-barlow font-semibold">
+                  {nannyData.education_level || "N/A"}
+                </span>
               </div>
               <div className="flex flex-col md:flex-row gap-2 items-center justify-between py-4">
-                <span className="font-barlow text-[#787878]">
-                  Highest Education Level
-                </span>
+                <span className="font-barlow text-[#787878]">Years of Experience</span>
                 <span className="font-barlow font-semibold">
-                  Tertiary (e.g., College)
+                  {nannyData.years_of_experience !== null
+                    ? nannyData.years_of_experience
+                    : "N/A"} years
                 </span>
               </div>
             </div>
@@ -236,10 +209,7 @@ const SingleNannyPage = () => {
             <div className="border p-2 border-gray-200 rounded-lg shadow-sm">
               {nannyData.contact_persons && nannyData.contact_persons.length > 0 ? (
                 nannyData.contact_persons.map(
-                  (
-                    contact: { name: string; phone: string; relationship: string },
-                    index: number
-                  ) => (
+                  (contact: { name: string; phone: string; relationship: string }, index: number) => (
                     <div key={index} className="flex flex-col py-4 border-b border-gray-200">
                       <span className="font-barlow mb-3 font-medium">
                         {contact.relationship}

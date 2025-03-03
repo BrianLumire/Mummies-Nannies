@@ -1,32 +1,28 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { createClient } from "@/supabase/client"; // Adjust path as needed
+import { createClient } from "@/supabase/client";
 
 export interface NannyData {
   id: string;
   location: string | null;
-  work_type: string | null; // allow null
-  religion: string | null;  // allow null
-  tribe: string | null;     // allow null
+  work_type: "full_time" | "dayburg" | null;
+  religion: "christian" | "islam" | "hindu" | "pagan" | "non_religious" | null;
+  tribe: string | null; // Will hold the tribe label after transformation.
   nationality: string | null;
-  rating: number | null;    // allow null
+  rating: number | null;
   is_available: boolean;
-  // Optionally include education_level if your data returns it:
   education_level?: "high_school" | "associate" | "bachelor" | "master" | "doctorate" | null;
-  // Joined fields:
+  years_of_experience?: number | null;
+  preferred_kids_count?: string | null; // Transformed from an array if necessary.
+  preferred_age_group?: string | null;   // Transformed from an array if necessary.
+  nanny_services?: string[]; // Expecting an array of strings.
   user_accounts: {
     full_name: string | null;
     avatar_url: string | null;
     phone: string | null;
   } | null;
-  // Updated salary_ranges to allow null
   salary_ranges?: { label: string } | null;
-  _nanniesToServices?: Array<{
-    nanny_services: {
-      label: string;
-    };
-  }>;
   contact_persons?: Array<{
     name: string;
     phone: string;
@@ -36,8 +32,6 @@ export interface NannyData {
 
 export function useNanny() {
   const params = useParams();
-  // params.id can be string | string[] | undefined.
-  // If it's an array, take the first element.
   const idParam = params?.id;
   const id = Array.isArray(idParam) ? idParam[0] : idParam;
 
@@ -57,19 +51,44 @@ export function useNanny() {
         .from("nannies")
         .select(
           `
-          *,
-          user_accounts (full_name, avatar_url, phone),
-          salary_ranges (label),
-          _nanniesToServices (nanny_services (label)),
-          contact_persons (name, phone, relationship)
+          id,
+          location,
+          work_type,
+          religion,
+          nationality,
+          rating,
+          is_available,
+          education_level,
+          years_of_experience,
+          preferred_kids_count,
+          preferred_age_group,
+          nanny_services,
+          user_accounts ( full_name, avatar_url, phone ),
+          salary_ranges ( label ),
+          tribe:tribes ( label ),
+          contact_persons ( name, phone, relationship )
           `
         )
         .eq("id", id!)
         .single();
+
       if (error) {
         setError(error.message);
-      } else {
-        setNannyData(data);
+      } else if (data) {
+        // Transform the joined fields:
+        const transformed: NannyData = {
+          ...data,
+          tribe: data.tribe ? data.tribe.label : "N/A",
+          preferred_kids_count: Array.isArray(data.preferred_kids_count)
+            ? data.preferred_kids_count.join(", ")
+            : data.preferred_kids_count || null,
+          preferred_age_group: Array.isArray(data.preferred_age_group)
+            ? data.preferred_age_group.join(", ")
+            : data.preferred_age_group || null,
+          // Ensure nanny_services is an array (defaulting to an empty array if null)
+          nanny_services: data.nanny_services ?? [],
+        };
+        setNannyData(transformed);
       }
       setLoading(false);
     }

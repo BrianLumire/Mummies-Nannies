@@ -27,7 +27,7 @@ export const activeMummies: Mummy[] = [
     budgetrange: "6k-9k",
     availablefor: "Special Needs",
     rating: 4.0, 
-    ratingphoto: "/admin-assets/rating icon.svg",
+    ratingphoto: "/admin-assets/right-icon.svg",
     pitchednannies: 5,
     
   },
@@ -57,7 +57,7 @@ export const suspendedMummies: Mummy[] = [
     pitchednannies: 5,
     suspenionfor:"Violence accusation",
     rating: 4.0, 
-    ratingphoto: "/admin-assets/rating icon.svg",
+    ratingphoto: "/admin-assets/right-icon.svg",
     lastseen: "Dec 30,2024 05:48",
     
     

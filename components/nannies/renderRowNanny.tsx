@@ -9,11 +9,12 @@ export const renderRowNanny = (
   selectedButton: string,
   router: ReturnType<typeof useRouter>
 ) => {
-  // Function to render each available service badge with its own border
+  // Render badges for nanny_services
   const renderAvailableForBadges = (services: string) => {
-    // Split the services string by comma and trim spaces
     const serviceArray =
-      services && services !== "N/A" ? services.split(",").map(s => s.trim()) : [];
+      services && services !== "N/A"
+        ? services.split(",").map((s) => s.trim())
+        : [];
     if (serviceArray.length === 0) return <span>N/A</span>;
     return (
       <div className="flex flex-wrap gap-1">
@@ -29,106 +30,71 @@ export const renderRowNanny = (
     );
   };
 
-  // Helper to format phone number with +254 prefix
+  // Format phone number with +254 prefix if missing
   const formatPhone = (phone: string) => {
     if (!phone) return "N/A";
     return phone.startsWith("+254") ? phone : `+254${phone}`;
   };
 
-  if (selectedButton === "Available Nannies") {
-    return (
-      <tr key={item.id} className="border-b border-gray-300 hover:bg-gray-50">
-        {/* Name */}
-        <td className="px-3 py-3 text-xs max-w-[90px] font-inter whitespace-nowrap sm:whitespace-normal">
-          <button className="flex items-center gap-3" onClick={() => router.push(`/admin/nannies/${item.id}`)}>
-            <Image src={item.avatar_url} alt={`${item.full_name}'s photo`} width={40} height={40} className="rounded-full" />
-            <span className="text-xs font-inter">{item.full_name}</span>
-          </button>
-        </td>
-        {/* Phone */}
-        <td className="px-3 py-3 text-xs font-inter whitespace-nowrap max-w-[80px] sm:whitespace-normal">
-          {formatPhone(item.phone)}
-        </td>
-        {/* Location */}
-        <td className="px-3 py-3 text-xs font-inter whitespace-nowrap max-w-[80px] sm:whitespace-normal">
-          {item.location ?? "N/A"}
-        </td>
-        {/* Budget Range */}
-        <td className="px-3 py-3 text-xs font-inter whitespace-nowrap max-w-[80px] sm:whitespace-normal">
-          {item.budget_range}
-        </td>
-        {/* Available For */}
-        <td className="px-3 py-3 text-xs font-inter whitespace-nowrap max-w-[80px] sm:whitespace-normal">
-          {renderAvailableForBadges(item.availablefor)}
-        </td>
-        {/* Work Type */}
-        <td className="px-3 py-3 text-xs font-inter whitespace-nowrap max-w-[80px] sm:whitespace-normal">
-          {item.work_type ?? "N/A"}
-        </td>
-        {/* Rating */}
-        <td className="px-3 py-3 whitespace-nowrap sm:whitespace-normal">
-          <div className="flex items-center gap-2">
-            <Image src="/admin-assets/rating icon.svg" alt="Rating" width={18} height={18} />
-            <span className="text-xs font-inter">{item.rating !== null ? item.rating : "N/A"}</span>
-          </div>
-        </td>
-        {/* Offers */}
-        <td className="px-3 py-3 text-xs font-inter whitespace-nowrap max-w-[80px] sm:whitespace-normal">
-          {item.offers}
-        </td>
-      </tr>
-    );
-  } else if (selectedButton === "Unavailable Nannies") {
-    return (
-      <tr key={item.id} className="border-b border-gray-300 hover:bg-gray-50">
-        {/* Name */}
-        <td className="px-3 py-3 text-xs font-inter whitespace-nowrap sm:whitespace-normal">
-          <button className="flex items-center gap-3" onClick={() => router.push(`/admin/nannies/${item.id}`)}>
-            <Image src={item.avatar_url} alt={`${item.full_name}'s photo`} width={40} height={40} className="rounded-full" />
-            <span className="text-xs font-inter">{item.full_name}</span>
-          </button>
-        </td>
-        {/* Phone */}
-        <td className="px-3 py-3 text-xs font-inter whitespace-nowrap sm:whitespace-normal">
-          {formatPhone(item.phone)}
-        </td>
-        {/* Location */}
-        <td className="px-3 py-3 text-xs font-inter whitespace-nowrap sm:whitespace-normal">
-          {item.location ?? "N/A"}
-        </td>
-        {/* Budget Range */}
-        <td className="px-3 py-3 text-xs font-inter whitespace-nowrap sm:whitespace-normal">
-          {item.budget_range}
-        </td>
-        {/* Available For */}
-        <td className="px-3 py-3 text-xs font-inter whitespace-nowrap sm:whitespace-normal">
-          {renderAvailableForBadges(item.availablefor)}
-        </td>
-        {/* Work Type */}
-        <td className="px-3 py-3 text-xs font-inter whitespace-nowrap sm:whitespace-normal">
-          {item.work_type ?? "N/A"}
-        </td>
-        {/* Rating */}
-        <td className="px-3 py-3 whitespace-nowrap sm:whitespace-normal">
-          <div className="flex items-center gap-2">
-            <Image src="/admin-assets/rating icon.svg" alt="Rating" width={18} height={18} />
-            <span className="text-xs font-inter">{item.rating !== null ? item.rating : "N/A"}</span>
-          </div>
-        </td>
-        {/* Last Seen */}
-        <td className="px-3 py-3 text-xs font-inter whitespace-nowrap sm:whitespace-normal">
-          {item.last_seen}
-        </td>
-        {/* Reason */}
-        <td className="px-3 py-3 text-xs font-inter whitespace-nowrap sm:whitespace-normal">
-          {item.reason}
-        </td>
-        {/* Offers */}
-        <td className="px-3 py-3 text-xs font-inter whitespace-nowrap sm:whitespace-normal">
-          {item.offers}
-        </td>
-      </tr>
-    );
-  }
-  return null;
+  const handleRowClick = () => {
+    router.push(`/admin/nannies/${item.id}`);
+  };
+
+  return (
+    <tr key={item.id} className="border-b border-gray-300 hover:bg-gray-50">
+      <td className="px-3 py-3 text-xs font-inter whitespace-nowrap sm:whitespace-normal">
+        <button className="flex items-center gap-3" onClick={handleRowClick}>
+          <Image
+            src={item.avatar_url}
+            alt={`${item.full_name}'s photo`}
+            width={40}
+            height={40}
+            className="rounded-full"
+          />
+          <span className="text-xs font-inter">{item.full_name}</span>
+        </button>
+      </td>
+      <td className="px-3 py-3 text-xs font-inter whitespace-nowrap max-w-[80px] sm:whitespace-normal">
+        {formatPhone(item.phone)}
+      </td>
+      <td className="px-3 py-3 text-xs font-inter whitespace-nowrap max-w-[80px] sm:whitespace-normal">
+        {item.location}
+      </td>
+      <td className="px-3 py-3 text-xs font-inter whitespace-nowrap max-w-[80px] sm:whitespace-normal">
+        {item.budget_range}
+      </td>
+      <td className="px-3 py-3 text-xs font-inter whitespace-nowrap max-w-[80px] sm:whitespace-normal">
+        {renderAvailableForBadges(item.availablefor)}
+      </td>
+      <td className="px-3 py-3 text-xs font-inter whitespace-nowrap max-w-[80px] sm:whitespace-normal">
+        {item.work_type || "N/A"}
+      </td>
+      <td className="px-3 py-3 whitespace-nowrap sm:whitespace-normal">
+        <div className="flex items-center gap-2">
+          <Image
+            src="/admin-assets/rating-icon.svg"
+            alt="Rating"
+            width={18}
+            height={18}
+          />
+          <span className="text-xs font-inter">
+            {item.rating !== null ? item.rating : "N/A"}
+          </span>
+        </div>
+      </td>
+      {selectedButton === "Unavailable Nannies" && (
+        <>
+          <td className="px-3 py-3 text-xs font-inter whitespace-nowrap sm:whitespace-normal">
+            {item.last_seen}
+          </td>
+          <td className="px-3 py-3 text-xs font-inter whitespace-nowrap sm:whitespace-normal">
+            {item.reason}
+          </td>
+        </>
+      )}
+      <td className="px-3 py-3 text-xs font-inter whitespace-nowrap max-w-[80px] sm:whitespace-normal">
+        {item.offers}
+      </td>
+    </tr>
+  );
 };

@@ -1,5 +1,6 @@
 "use client";
-import React, { useState } from "react";
+
+import React, { useState,useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -7,31 +8,57 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { personalDetailsSchema, PersonalDetailsFormValues } from "@/hooks/nanny/nannySchema";
 import { ChevronDown } from "lucide-react";
 import { toast } from "sonner";
+import { createClient } from "@/supabase/client";
+import { uploadImages } from "@/utils/nannies/uploadImages";
+import { TablesInsert } from "@/database.types";
 
 const PersonalDetailsPage: React.FC = () => {
   const router = useRouter();
+  const supabase = createClient();
+  
+  // Local state for previews of National ID images
   const [previews, setPreviews] = useState<string[]>(["", ""]);
+  // Local state to hold the selected ID image files
+  const [idFiles, setIdFiles] = useState<File[]>([]);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm<PersonalDetailsFormValues>({
     resolver: zodResolver(personalDetailsSchema),
   });
 
-  const onSubmit = (data: PersonalDetailsFormValues) => {
-    console.log("Personal Details:", data);
-    // Save personal details to sessionStorage
-    sessionStorage.setItem("nannyPersonalData", JSON.stringify(data));
-    toast.success("Personal details saved!");
-    router.push("/admin/add-nanny/contact");
-  };
+  // Pre-populate form fields if a record exists
+  useEffect(() => {
+    const fetchNannyData = async () => {
+      const userId = sessionStorage.getItem("nannyUserId");
+      if (userId) {
+        const { data, error } = await supabase
+          .from("nannies")
+          .select()
+          .eq("user_id", userId)
+          .single();
+        if (!error && data) {
+          // Use react-hook-form's reset() method to pre-populate the form fields
+          reset({
+            nationality: data.nationality ?? undefined,
+            religion: data.religion ?? undefined,
+            tribe: data.tribe_id ?? undefined,
+            // Map additional fields as needed
+          });
+        }
+      }
+    };
+    fetchNannyData();
+  }, [supabase, reset]);
 
-  // File change handler for updating the preview for each container
+  // File change handler for updating the preview and storing the file
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Update the preview using FileReader
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreviews((prev) => {
@@ -41,6 +68,58 @@ const PersonalDetailsPage: React.FC = () => {
         });
       };
       reader.readAsDataURL(file);
+      // Update the idFiles array
+      setIdFiles((prev) => {
+        const newFiles = [...prev];
+        newFiles[index] = file;
+        return newFiles;
+      });
+    }
+  };
+
+  const onSubmit = async (data: PersonalDetailsFormValues) => {
+    try {
+      // 1. Optionally upload National ID images if selected
+      let idImageUrls: string[] = [];
+      if (idFiles.length > 0) {
+        idImageUrls = await uploadImages(idFiles, "nannies"); // using "nannies" bucket as example
+        // Save the URLs in sessionStorage for later use (e.g. updating professional info)
+        sessionStorage.setItem("nannyIDImages", JSON.stringify(idImageUrls));
+      }
+
+      // 2. Retrieve the nanny user ID from the Bio page (must have been saved there)
+      const userId = sessionStorage.getItem("nannyUserId");
+      if (!userId) {
+        throw new Error("User ID missing. Please complete the Bio Information step first.");
+      }
+
+      // 3. Build the upsert payload for the nannies table using our generated types.
+      // Note: Our database type expects a field named "tribe_id". We use the input tribe value.
+      const payload: TablesInsert<"nannies"> = {
+        user_id: userId,
+        nationality: data.nationality,
+        religion: data.religion,
+        tribe_id: data.tribe,
+        // Other fields can be left undefined or set to defaults as per schema.
+      };
+
+      // 4. Upsert the record into the nannies table (chain .select() to return the updated/created record)
+      const { data: nannyData, error: nannyError } = await supabase
+        .from("nannies")
+        .upsert(payload)
+        .select();
+      if (nannyError) {
+        console.error("Nannies upsert error:", nannyError);
+        throw nannyError;
+      }
+
+      // 5. Save the personal details in sessionStorage for later steps
+      sessionStorage.setItem("nannyPersonalData", JSON.stringify(data));
+      toast.success("Personal details saved!");
+      router.push("/admin/add-nanny/contact");
+    } catch (error: any) {
+      console.error("Error saving personal details:", error);
+      toast.error("Error saving personal details.");
     }
   };
 
@@ -56,15 +135,28 @@ const PersonalDetailsPage: React.FC = () => {
               onClick={() => router.push("/admin/nannies")}
               className="p-2 flex items-center justify-center bg-[#FAFAFA] rounded-full"
             >
-              <Image src="/nannies-assets/close.svg" alt="Close Icon" width={20} height={20} />
+              <Image
+                src="/nannies-assets/close.svg"
+                alt="Close Icon"
+                width={20}
+                height={20}
+              />
             </button>
           </div>
           <div className="flex flex-col gap-4 md:gap-7 pt-2">
             <div className="flex items-center gap-3">
-              <span className="text-sm md:text-base font-barlow font-normal">Bio Information</span>
-              <span className="text-sm md:text-base font-barlow font-normal">Personal Details</span>
-              <span className="text-sm md:text-base font-barlow font-normal">Contact Information</span>
-              <span className="text-sm md:text-base font-barlow font-normal">Professional Information</span>
+              <span className="text-sm md:text-base font-barlow font-normal">
+                Bio Information
+              </span>
+              <span className="text-sm md:text-base font-barlow font-normal">
+                Personal Details
+              </span>
+              <span className="text-sm md:text-base font-barlow font-normal">
+                Contact Information
+              </span>
+              <span className="text-sm md:text-base font-barlow font-normal">
+                Professional Information
+              </span>
             </div>
             {/* Progress Bar */}
             <div className="w-full h-1 rounded-md bg-[#cccaca54]">
@@ -80,7 +172,10 @@ const PersonalDetailsPage: React.FC = () => {
             {/* Left Column */}
             <div className="flex flex-col gap-4 w-full md:w-1/2">
               <div>
-                <label htmlFor="nationality" className="block text-sm font-medium text-gray-700 font-barlow">
+                <label
+                  htmlFor="nationality"
+                  className="block text-sm font-medium text-gray-700 font-barlow"
+                >
                   Nationality
                 </label>
                 <input
@@ -90,10 +185,15 @@ const PersonalDetailsPage: React.FC = () => {
                   className="mt-1 p-2 border border-gray-300 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-purple-500"
                   placeholder="Enter Nationality"
                 />
-                {errors.nationality && <p className="text-red-500 text-sm">{errors.nationality.message}</p>}
+                {errors.nationality && (
+                  <p className="text-red-500 text-sm">{errors.nationality.message}</p>
+                )}
               </div>
               <div className="relative">
-                <label htmlFor="religion" className="block text-sm font-medium text-gray-700 font-barlow">
+                <label
+                  htmlFor="religion"
+                  className="block text-sm font-medium text-gray-700 font-barlow"
+                >
                   Religion
                 </label>
                 <select
@@ -109,13 +209,18 @@ const PersonalDetailsPage: React.FC = () => {
                   <option value="non_religious">Non Religious</option>
                 </select>
                 <ChevronDown className="absolute right-3 top-[65%] transform -translate-y-1/2 pointer-events-none text-gray-500" />
-                {errors.religion && <p className="text-red-500 text-sm">{errors.religion.message}</p>}
+                {errors.religion && (
+                  <p className="text-red-500 text-sm">{errors.religion.message}</p>
+                )}
               </div>
             </div>
             {/* Right Column */}
             <div className="flex flex-col gap-4 w-full md:w-1/2">
               <div>
-                <label htmlFor="tribe" className="block text-sm font-medium text-gray-700 font-barlow">
+                <label
+                  htmlFor="tribe"
+                  className="block text-sm font-medium text-gray-700 font-barlow"
+                >
                   Tribe
                 </label>
                 <input
@@ -125,13 +230,15 @@ const PersonalDetailsPage: React.FC = () => {
                   className="mt-1 p-2 border border-gray-300 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-purple-500"
                   placeholder="Enter Tribe"
                 />
-                {errors.tribe && <p className="text-red-500 text-sm">{errors.tribe.message}</p>}
+                {errors.tribe && (
+                  <p className="text-red-500 text-sm">{errors.tribe.message}</p>
+                )}
               </div>
             </div>
           </div>
         </div>
 
-        {/* Upload Section */}
+        {/* Upload Section for National ID Images */}
         <div className="w-full p-3 sm:w-[70%] md:w-[80%] mx-auto">
           <p className="font-barlow text-sm font-medium">Upload National ID Images</p>
           <div className="flex flex-col md:flex-row items-center gap-3 mt-5">
@@ -147,7 +254,6 @@ const PersonalDetailsPage: React.FC = () => {
                       alt="Uploaded photo preview"
                       layout="fill"
                       className="object-cover"
-                      
                     />
                   </div>
                 ) : (
@@ -159,7 +265,12 @@ const PersonalDetailsPage: React.FC = () => {
                       }
                       className="p-2 flex items-center justify-center bg-[#6000DA12] rounded-full"
                     >
-                      <Image src="/nannies-assets/add-photo.svg" alt="Add Photo Icon" width={25} height={25} />
+                      <Image
+                        src="/nannies-assets/add-photo.svg"
+                        alt="Add Photo Icon"
+                        width={25}
+                        height={25}
+                      />
                     </button>
                     <span className="font-barlow text-xs">Add Photo</span>
                     <span className="font-barlow text-xs text-gray-500">
@@ -167,7 +278,6 @@ const PersonalDetailsPage: React.FC = () => {
                     </span>
                   </>
                 )}
-                {/* Hidden file input for this container */}
                 <input
                   id={`personal-upload-${index}`}
                   type="file"

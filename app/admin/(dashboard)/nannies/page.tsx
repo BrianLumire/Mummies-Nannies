@@ -8,6 +8,7 @@ import { filterData, FilterCriteria } from "@/utils/filterData";
 import { sortData } from "@/utils/sortData";
 import { useRouter } from "next/navigation";
 import { useNannies, NannyData } from "@/hooks/nanny/useNannies";
+import AddNannyFlow from "@/components/nannies/add-nanny/AddNannyFlow";
 
 // Define the Column interface locally
 interface Column {
@@ -22,13 +23,17 @@ const NanniesPage = () => {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [filters, setFilters] = useState<FilterCriteria>({});
   const [loadingSim, setLoadingSim] = useState(false);
+  const [showAddNannyFlow, setShowAddNannyFlow] = useState(false);
+
   const router = useRouter();
 
   const buttons = ["Available Nannies", "Unavailable Nannies"];
 
   const handleAddNannyClick = () => {
-    router.push("/admin/add-nanny");
-};
+    setShowAddNannyFlow(true);
+  };
+  
+  
 
   // Define columns for each view
   const availableColumns: Column[] = [
@@ -201,6 +206,10 @@ const NanniesPage = () => {
           />
         )}
       </div>
+      {showAddNannyFlow && (
+  <AddNannyFlow onClose={() => setShowAddNannyFlow(false)} />
+)}
+
     </div>
   );
 };

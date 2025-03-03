@@ -35,71 +35,19 @@ const ProfessionalInfoPage: React.FC = () => {
     setValue("work_terms", term);
   };
 
-  // Services Available to Offer
-  const servicesAvailableOptions = [
-    { id: "ebf7459e-1f21-43e3-9411-519a2b39189f", label: "Child Care" },
-    { id: "30f143cf-410f-49bb-af41-48577265a663", label: "Elderly Care" },
-    { id: "991de8ec-f799-4fb7-aef4-711f3810c617", label: "Special Needs Care" },
-  ];
-  const [selectedServices, setSelectedServices] = useState<string[]>([]);
-  const toggleService = (serviceId: string) => {
-    setSelectedServices((prev) =>
-      prev.includes(serviceId)
-        ? prev.filter((id) => id !== serviceId)
-        : prev.length < 3
-        ? [...prev, serviceId]
-        : prev
-    );
-  };
-
-  // Preferred Age Group Options
-  const preferredAgeGroupOptions = [
-    { id: "49650c6e-d92d-40e7-aeea-5227922f5f52", label: "0-1 year" },
-    { id: "ad2d12e1-f01c-44a2-9004-ac1145aeb525", label: "1-3 years" },
-    { id: "f69660af-23fb-4564-b283-b18226d161b8", label: "4 years and above" },
-  ];
-  const [preferredAgeGroup, setPreferredAgeGroup] = useState<string>("");
-
-  // Number of Kids Preferred Options
-  const numberOfKidsOptions = [
-    { id: "f37225a6-c23c-44c2-aea2-355ab926779b", label: "Any number" },
-    { id: "e59ee259-259d-42c2-ae42-9845c556e4e7", label: "1-2 kids" },
-    { id: "e00f0254-e361-4ee3-9ca0-fbd72b92563c", label: "1-5 kids" },
-  ];
-  const [numberOfKidsPreferred, setNumberOfKidsPreferred] = useState<string>("");
-
-  // Preferred Special Needs Options
-  const preferredSpecialNeedsOptions = [
-    { id: "39ac1938-00f3-4405-8aa8-a16c9da51eb4", label: "Speech Disability" },
-    { id: "4d4ce98a-6942-458c-860b-3149e5589055", label: "Visual Disability" },
-    { id: "6fbab458-04b9-483c-b73d-3cafe0395b0d", label: "Hearing Impairment" },
-    { id: "f3ba8b58-121d-409a-a344-ed7f77986acd", label: "Mobility" },
-    { id: "fa64271d-ccb1-4a71-8a29-0a0d75d7a6d5", label: "Autism" },
-  ];
-  const [selectedSpecialNeeds, setSelectedSpecialNeeds] = useState<string[]>([]);
-  const toggleSpecialNeed = (needId: string) => {
-    setSelectedSpecialNeeds((prev) =>
-      prev.includes(needId) ? prev.filter((id) => id !== needId) : [...prev, needId]
-    );
-  };
-
   const onSubmit = async (data: ProfessionalInfoFormValues) => {
     try {
-      // Retrieve saved data
+      // Retrieve saved data from previous steps
       const bioData = JSON.parse(sessionStorage.getItem("nannyBioData") || "{}");
       const personalData = JSON.parse(sessionStorage.getItem("nannyPersonalData") || "{}");
       const contactData = JSON.parse(sessionStorage.getItem("nannyContactData") || "{}");
 
-      // Merge data and include new selections
+      // Merge data from all steps with the current form data
       const completeData = {
         ...bioData,
         ...personalData,
         ...contactData,
         ...data,
-        services_available: selectedServices,
-        preferred_age_group: preferredAgeGroup,
-        number_of_kids_preferred: numberOfKidsPreferred,
-        preferred_special_needs: selectedSpecialNeeds,
       };
 
       if (!completeData.user_id) {
@@ -117,7 +65,7 @@ const ProfessionalInfoPage: React.FC = () => {
       const idImageUrls = await uploadImages(personalFiles, "nannies");
       console.log("Uploaded ID Image URLs:", idImageUrls);
 
-      // Update user_accounts record
+      // Update user_accounts record with avatar, full name, and phone
       const { error: updateError } = await supabase
         .from("user_accounts")
         .update({
@@ -147,21 +95,18 @@ const ProfessionalInfoPage: React.FC = () => {
         is_available: true,
         rating: 5.0,
         work_type: completeData.work_terms,
-        salary_range_id: salaryRangeId,
+        salary_range_id: salaryRangeId, // Fetched from the salary_ranges table
         nationality: completeData.nationality,
         religion: completeData.religion,
-        tribe: completeData.tribe,
-        preferred_age_group_id: completeData.preferred_age_group,
-        number_of_kids_preferred_id: completeData.number_of_kids_preferred,
+        tribe_id: completeData.tribe, // Ensure this matches your schema field name
       };
 
       // Check if a nanny record for this user already exists
       const { data: existingNanny } = await supabase
-  .from("nannies")
-  .select("id")
-  .eq("user_id", completeData.user_id)
-  .maybeSingle();
-
+        .from("nannies")
+        .select("id")
+        .eq("user_id", completeData.user_id)
+        .maybeSingle();
 
       let nannyId;
       if (existingNanny) {
@@ -181,16 +126,28 @@ const ProfessionalInfoPage: React.FC = () => {
         nannyId = insertedNannies[0].id;
       }
 
-      // Combine service selections with preferred special needs
-      const combinedServices = Array.from(new Set([...completeData.services_available, ...completeData.preferred_special_needs]));
-      for (const serviceId of combinedServices) {
-        const { error } = await supabase
-          .from("_nanniesToServices")
-          .insert({ A: nannyId, B: serviceId });
-        if (error) throw error;
+      // Insert contact persons into the contact_persons table
+      if (completeData.contacts && completeData.contacts.length > 0) {
+        for (const contact of completeData.contacts) {
+          const contactPayload = {
+            name: contact.name,
+            relationship: contact.relationship,
+            nanny_id: nannyId,
+            phone: contact.phone || "0714224356", // Provide a default if necessary
+          };
+
+          const { error: contactInsertError } = await supabase
+            .from("contact_persons")
+            .insert(contactPayload);
+          if (contactInsertError) {
+            console.error("Error inserting contact person:", contactInsertError);
+            throw contactInsertError;
+          }
+        }
       }
 
       toast.success("Nanny created successfully!");
+      // Clean up session storage after successful submission
       sessionStorage.removeItem("nannyBioData");
       sessionStorage.removeItem("nannyPersonalData");
       sessionStorage.removeItem("nannyContactData");
@@ -234,7 +191,7 @@ const ProfessionalInfoPage: React.FC = () => {
         <div className="w-full p-3 sm:w-[70%] md:w-[80%] mx-auto flex flex-col md:flex-row gap-6">
           {/* LEFT COLUMN */}
           <div className="flex flex-col gap-6 w-full md:w-1/2">
-            {/* Highest Education Level */}
+            {/* Highest Educational Level */}
             <div className="relative">
               <label htmlFor="Education" className="block text-sm font-medium text-gray-700 font-barlow">
                 Highest Educational Level
@@ -284,48 +241,6 @@ const ProfessionalInfoPage: React.FC = () => {
                 </button>
               </div>
             </div>
-
-            {/* Services Available to Offer */}
-            <div className="mt-6">
-              <p className="font-barlow font-semibold text-base">Services Available to Offer</p>
-              <div className="grid grid-cols-3 gap-3 mt-2">
-                {servicesAvailableOptions.map((option) => (
-                  <button
-                    key={option.id}
-                    type="button"
-                    onClick={() => toggleService(option.id)}
-                    className={`px-4 py-3 text-xs rounded-[24px] ${
-                      selectedServices.includes(option.id)
-                        ? "border-[#6000DA] border-2 bg-[#6000DA12] text-[#6000DA]"
-                        : "border border-gray-300 bg-white text-black"
-                    }`}
-                  >
-                    {option.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Preferred Age Group */}
-            <div className="mt-6">
-              <p className="font-barlow font-semibold text-base">Preferred Age Group</p>
-              <div className="grid grid-cols-3 gap-3 mt-2">
-                {preferredAgeGroupOptions.map((option) => (
-                  <button
-                    key={option.id}
-                    type="button"
-                    onClick={() => setPreferredAgeGroup(option.id)}
-                    className={`px-4 py-3 text-xs rounded-[24px] ${
-                      preferredAgeGroup === option.id
-                        ? "border-[#6000DA] border-2 bg-[#6000DA12] text-[#6000DA]"
-                        : "border border-gray-300 bg-white text-black"
-                    }`}
-                  >
-                    {option.label}
-                  </button>
-                ))}
-              </div>
-            </div>
           </div>
 
           {/* RIGHT COLUMN */}
@@ -346,48 +261,6 @@ const ProfessionalInfoPage: React.FC = () => {
                 <option value="16k - 20k">16k - 20k</option>
                 <option value="Above 20k">Above 20k</option>
               </select>
-            </div>
-
-            {/* Number of Kids Preferred */}
-            <div className="mt-6">
-              <p className="font-barlow font-semibold text-base">Number of Kids Preferred</p>
-              <div className="grid grid-cols-3 gap-3 mt-2">
-                {numberOfKidsOptions.map((option) => (
-                  <button
-                    key={option.id}
-                    type="button"
-                    onClick={() => setNumberOfKidsPreferred(option.id)}
-                    className={`px-4 py-3 text-xs rounded-[24px] ${
-                      numberOfKidsPreferred === option.id
-                        ? "border-[#6000DA] border-2 bg-[#6000DA12] text-[#6000DA]"
-                        : "border border-gray-300 bg-white text-black"
-                    }`}
-                  >
-                    {option.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Preferred Special Needs */}
-            <div className="mt-6">
-              <p className="font-barlow font-semibold text-base">Preferred Special Needs</p>
-              <div className="grid grid-cols-3 gap-3 mt-2">
-                {preferredSpecialNeedsOptions.map((option) => (
-                  <button
-                    key={option.id}
-                    type="button"
-                    onClick={() => toggleSpecialNeed(option.id)}
-                    className={`px-4 py-3 text-xs rounded-[24px] ${
-                      selectedSpecialNeeds.includes(option.id)
-                        ? "border-[#6000DA] border-2 bg-[#6000DA12] text-[#6000DA]"
-                        : "border border-gray-300 bg-white text-black"
-                    }`}
-                  >
-                    {option.label}
-                  </button>
-                ))}
-              </div>
             </div>
           </div>
         </div>
