@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { toast } from "sonner";
 import { createClient } from "@/supabase/client";
@@ -27,7 +27,36 @@ const BudgetMummyModal: React.FC<BudgetMummyModalProps> = ({ onClose, onComplete
   const [selectedBudget, setSelectedBudget] = useState("");
   
   // NEW: State for submission progress.
-  const [submitting, setSubmitting] = useState(false); // CHANGE: Added submission state
+  const [submitting, setSubmitting] = useState(false);
+
+  // Define a function to fetch existing budget data.
+  const fetchBudgetData = useCallback(async () => {
+    const mammiesId = localStorage.getItem("mammiesId");
+    if (!mammiesId) return;
+    const client = createClient();
+    const { data, error } = await client
+      .from("mammies")
+      .select("salary_range_id")
+      .eq("id", mammiesId)
+      .maybeSingle();
+    if (error) {
+      console.error("Error fetching budget data:", error);
+      return;
+    }
+    if (data && data.salary_range_id) {
+      // Find the budget option that matches the salary_range_id.
+      const budgetOption = Object.keys(salaryMapping).find(
+        (key) => salaryMapping[key] === data.salary_range_id
+      );
+      if (budgetOption) {
+        setSelectedBudget(budgetOption);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchBudgetData();
+  }, [fetchBudgetData]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,7 +88,7 @@ const BudgetMummyModal: React.FC<BudgetMummyModalProps> = ({ onClose, onComplete
 
     const supabase = createClient();
 
-    setSubmitting(true); // CHANGE: Set submitting to true at beginning of submission
+    setSubmitting(true);
     
     try {
       const { data: upsertedData, error } = await supabase
@@ -68,19 +97,18 @@ const BudgetMummyModal: React.FC<BudgetMummyModalProps> = ({ onClose, onComplete
       if (error) {
         console.error("Upsert error:", error);
         toast.error("Failed to update salary information. Please try again.");
-        setSubmitting(false); // CHANGE: Reset submitting on error
+        setSubmitting(false);
         return;
       }
       console.log("Upsert successful:", upsertedData);
       toast.success("Mummy has been onboarded successfully!");
-      setSubmitting(false); // CHANGE: Reset submitting at end of submission
+      setSubmitting(false);
       onComplete();
     } catch (err: unknown) {
       console.error("Unexpected error:", err);
       toast.error("An unexpected error occurred. Please try again.");
       setSubmitting(false);
     }
-    
   };
 
   return (
@@ -123,10 +151,9 @@ const BudgetMummyModal: React.FC<BudgetMummyModalProps> = ({ onClose, onComplete
           <div className="w-full p-3 space-y-6">
             <h2 className="font-barlow font-semibold text-lg mb-4">Set Budget</h2>
             <div>
-            <label className="block font-barlow text-sm font-medium text-gray-700 mb-2">
-  Select the mummy&apos;s budget for a nanny
-</label>
-
+              <label className="block font-barlow text-sm font-medium text-gray-700 mb-2">
+                Select the mummy&apos;s budget for a nanny
+              </label>
               <div className="flex gap-4 flex-wrap">
                 {["6k-9k", "10k-15k", "16k-20k", "Above 20k"].map((option) => (
                   <button
@@ -153,13 +180,12 @@ const BudgetMummyModal: React.FC<BudgetMummyModalProps> = ({ onClose, onComplete
             </button>
             <button
               type="submit"
-              disabled={submitting} // CHANGE: Disable button when submitting is true
+              disabled={submitting}
               className={`px-8 py-3 rounded-lg text-white ${
                 submitting ? "bg-[#6000DA] opacity-50 cursor-not-allowed" : "bg-[#6000DA]"
               }`}
             >
               {submitting ? (
-                // CHANGE: Conditionally render a spinner when submitting is true
                 <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-white"></div>
               ) : (
                 "Complete"

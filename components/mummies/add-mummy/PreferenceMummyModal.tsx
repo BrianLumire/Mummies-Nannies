@@ -41,6 +41,11 @@ interface TribeRow {
   tribes: Tribe;
 }
 
+// Define an interface for the parameters for the search tribe RPC.
+interface SearchTribeParams {
+  tribe_name: string;
+}
+
 const PreferenceMummyModal: React.FC<PreferenceMummyModalProps> = ({ onClose, onBack, onNext }) => {
   // Moved inside the component
   const [submitting, setSubmitting] = useState(false); // CHANGE: Added submission state inside the component
@@ -78,7 +83,10 @@ const PreferenceMummyModal: React.FC<PreferenceMummyModalProps> = ({ onClose, on
       setTribeSuggestions([]);
       return;
     }
-    const { data, error } = await client.rpc<Tribe[]>("search_tribe", { tribe_name: searchTerm });
+    const { data, error } = await client.rpc<Tribe[], SearchTribeParams>(
+      "search_tribe",
+      { tribe_name: searchTerm }
+    );
     if (error) {
       console.error("Error searching tribes:", error);
       return;

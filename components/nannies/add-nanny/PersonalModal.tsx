@@ -59,6 +59,14 @@ interface PersonalModalProps {
   onClose: () => void;
 }
 
+// Define an interface for the payload to avoid using 'any'
+interface NannyPersonalPayload {
+  user_id: string;
+  nationality: string;
+  religion: "christian" | "islam" | "hindu" | "pagan" | "non_religious";
+  tribe_id: string;
+}
+
 const PersonalModal: React.FC<PersonalModalProps> = ({ onNext, onBack, onClose }) => {
   // State for form fields
   const [nationality, setNationality] = useState("");
@@ -135,18 +143,18 @@ const PersonalModal: React.FC<PersonalModalProps> = ({ onNext, onBack, onClose }
     }
     setSubmitting(true);
 
+    // Create the payload with the defined type instead of using 'any'.
+    const payload: NannyPersonalPayload = {
+      user_id: nannyUserId,
+      nationality,
+      religion: religion as "christian" | "islam" | "hindu" | "pagan" | "non_religious",
+      tribe_id: tribe,
+    };
+
     // Upsert the record in the nannies table.
     const { data, error } = await client
       .from("nannies")
-      .upsert(
-        {
-          user_id: nannyUserId,
-          nationality,
-          religion: religion as "christian" | "islam" | "hindu" | "pagan" | "non_religious",
-          tribe_id: tribe,
-        } as any,
-        { onConflict: "user_id" }
-      )
+      .upsert(payload, { onConflict: "user_id" })
       .select();
     if (error) {
       toast.error("Error saving personal details.");

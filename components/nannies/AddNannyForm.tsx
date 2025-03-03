@@ -76,20 +76,25 @@ const AddNannyForm: React.FC = () => {
           return (
             <div key={containerIndex} className="relative border-dotted border-2 w-full md:w-1/4 h-40 border-gray-300 shadow-md rounded-lg p-1 flex flex-col gap-2 items-center justify-center">
               {file ? (
-                <>
-                  <img
-                    src={URL.createObjectURL(file)}
-                    alt={`Preview ${containerIndex}`}
-                    className="object-cover rounded-lg w-full h-full"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeImage(containerIndex)}
-                    className="absolute bottom-2 right-2 p-2 flex items-center justify-center bg-[#cecece] rounded-full"
-                  >
-                    <Image src="/nannies-assets/delete.svg" alt="Delete Photo" width={25} height={25} />
-                  </button>
-                </>
+               <>
+               <div className="relative w-full h-full">
+                 <Image
+                   src={URL.createObjectURL(file)}
+                   alt={`Preview ${containerIndex}`}
+                   fill
+                   className="object-cover rounded-lg"
+                   width={100}
+                   height={100}
+                 />
+               </div>
+               <button
+                 type="button"
+                 onClick={() => removeImage(containerIndex)}
+                 className="absolute bottom-2 right-2 p-2 flex items-center justify-center bg-[#cecece] rounded-full"
+               >
+                 <Image src="/nannies-assets/delete.svg" alt="Delete Photo" width={25} height={25} />
+               </button>
+             </>
               ) : (
                 <>
                   <button

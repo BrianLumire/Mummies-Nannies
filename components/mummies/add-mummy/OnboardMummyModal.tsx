@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -55,7 +55,7 @@ const OnboardMummyModal: React.FC<OnboardMummyModalProps> = ({ onClose, onNext }
   };
 
   // Function to fetch existing data for the user account.
-  const fetchUserData = async () => {
+  const fetchUserData = useCallback(async () => {
     const client = createClient();
     const mummyUserId = localStorage.getItem("mummyUserId");
     if (!mummyUserId) {
@@ -79,11 +79,11 @@ const OnboardMummyModal: React.FC<OnboardMummyModalProps> = ({ onClose, onNext }
         photo: data.avatar_url || undefined,
       });
     }
-  };
+  }, [reset]);
 
   useEffect(() => {
     fetchUserData();
-  }, [reset]);
+  }, [fetchUserData]);
 
   // Handle form submission integration.
   const onSubmit = async (data: MummyBioFormValues) => {

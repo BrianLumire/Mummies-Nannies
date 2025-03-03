@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -37,7 +37,7 @@ const EditBioModalNanny: React.FC<EditBioModalNannyProps> = ({ nannyId, onClose,
   const photo = watch("photo");
 
   // Fetch the nanny row and then the corresponding user data.
-  const fetchUserData = async () => {
+  const fetchUserData = useCallback(async () => {
     setLoading(true);
     const client = createClient();
 
@@ -81,11 +81,11 @@ const EditBioModalNanny: React.FC<EditBioModalNannyProps> = ({ nannyId, onClose,
       });
     }
     setLoading(false);
-  };
+  }, [nannyId, reset]);
 
   useEffect(() => {
     fetchUserData();
-  }, [nannyId]);
+  }, [fetchUserData]);
 
   // Handle file selection for photo upload.
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {

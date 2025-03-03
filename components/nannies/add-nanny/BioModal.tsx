@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -61,7 +61,7 @@ const BioModal: React.FC<BioModalProps> = ({ onNext, onClose }) => {
   };
 
   // Fetch existing user data to repopulate the form.
-  const fetchUserData = async () => {
+  const fetchUserData = useCallback(async () => {
     const client = createClient();
     const nannyUserId = localStorage.getItem("nannyUserId");
     if (!nannyUserId) return;
@@ -88,11 +88,11 @@ const BioModal: React.FC<BioModalProps> = ({ onNext, onClose }) => {
         return newPhotos;
       });
     }
-  };
+  }, [reset]);
 
   useEffect(() => {
     fetchUserData();
-  }, [reset]);
+  }, [fetchUserData]);
 
   // Function to upload photo to Supabase Storage.
   const uploadPhoto = async (file: File, userId: string): Promise<string | null> => {
