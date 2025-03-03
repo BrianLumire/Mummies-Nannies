@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import { ChevronDown } from "lucide-react";
+
 import { toast } from "sonner";
 import { createClient } from "@/supabase/client";
 

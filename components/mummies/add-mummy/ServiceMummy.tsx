@@ -87,10 +87,11 @@ const ServiceMummy: React.FC<ServiceMummyProps> = ({ onClose, onBack, onNext }) 
       return;
     }
 
-    if (data && data.nanny_services) {
+    if (data?.nanny_services) {
       // Assuming nanny_services is stored as an array.
       setSelectedServices(data.nanny_services);
     }
+    
   };
 
   // On component mount, fetch the existing service data.

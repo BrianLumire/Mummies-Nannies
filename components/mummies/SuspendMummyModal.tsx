@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { toast } from "sonner";
-import { createClient } from "@/supabase/client";
+
 
 interface SuspendMummyModalProps {
   mummyId: string; // Add this property if not already defined

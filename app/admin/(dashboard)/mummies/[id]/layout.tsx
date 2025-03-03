@@ -53,19 +53,20 @@ function sanitizeUrl(url: string): string {
   return "/" + url;
 }
 
-// Format created_at timestamp to a friendly format.
-const formatDate = (timestamp: string): string => {
-  const date = new Date(timestamp);
-  const options: Intl.DateTimeFormatOptions = {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "numeric",
-    minute: "numeric",
-    hour12: true,
-  };
-  return date.toLocaleString("en-US", options);
-};
+// Remove this function if it's not necessary
+// const formatDate = (timestamp: string): string => {
+//   const date = new Date(timestamp);
+//   const options: Intl.DateTimeFormatOptions = {
+//     month: "short",
+//     day: "numeric",
+//     year: "numeric",
+//     hour: "numeric",
+//     minute: "numeric",
+//     hour12: true,
+//   };
+//   return date.toLocaleString("en-US", options);
+// };
+
 
 export default function SingleMummyLayout({ children }: { children: React.ReactNode }) {
   const { id: mummyId } = useParams();

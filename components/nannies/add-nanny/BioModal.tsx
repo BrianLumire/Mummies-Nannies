@@ -25,8 +25,6 @@ const BioModal: React.FC<BioModalProps> = ({ onNext, onClose }) => {
   const {
     register,
     handleSubmit,
-    setValue,
-    watch,
     formState: { errors },
     reset,
   } = useForm<NannyBioFormValues>({
@@ -169,12 +167,18 @@ const BioModal: React.FC<BioModalProps> = ({ onNext, onClose }) => {
     }
 
     // Prepare payload for upsert. Only the first photo is used for avatar_url.
-    const payload = {
+    const payload: {
+      id: string;
+      full_name: string;
+      avatar_url: string | null;
+      role: "nanny";
+    } = {
       id: nannyUserId,
       full_name: data.full_name,
       avatar_url: avatar_url,
-      role: "nanny" as "nanny",
+      role: "nanny", // This is now typed as the literal "nanny"
     };
+    
 
     const { error } = await client
       .from("user_accounts")

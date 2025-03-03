@@ -72,15 +72,7 @@ const ContactModal: React.FC<ContactModalProps> = ({ onNext, onBack, onClose }) 
     setContacts((prev) => [...prev, newContact]);
   };
 
-  const removeContact = (id: string) => {
-    setContacts((prev) => prev.filter((contact) => contact.id !== id));
-  };
 
-  const handleContactChange = (id: string, field: "name" | "relationship", value: string) => {
-    setContacts((prev) =>
-      prev.map((contact) => (contact.id === id ? { ...contact, [field]: value } : contact))
-    );
-  };
 
   // Handle form submission.
   const handleSubmit = async (e: React.FormEvent) => {
