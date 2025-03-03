@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -33,6 +33,11 @@ const religionOptions: { label: string; value: Religion }[] = [
 interface Tribe {
   id: string;
   label: string;
+}
+
+interface TribeRow {
+  B: string;
+  tribes: Tribe;
 }
 
 const EditPreferenceMummyModal: React.FC<PreferenceMummyModalProps> = ({
@@ -74,9 +79,10 @@ const EditPreferenceMummyModal: React.FC<PreferenceMummyModalProps> = ({
       setTribeSuggestions([]);
       return;
     }
-    const { data, error } = await (client.rpc as any)("search_tribe", {
-      tribe_name: searchTerm,
-    });
+    const { data, error } = await client.rpc<Tribe[], { tribe_name: string }>(
+      "search_tribe",
+      { tribe_name: searchTerm }
+    );
     if (error) {
       console.error("Error searching tribes:", error);
       return;
@@ -100,7 +106,7 @@ const EditPreferenceMummyModal: React.FC<PreferenceMummyModalProps> = ({
   const [loading, setLoading] = useState<boolean>(false);
 
   // Fetch preference data for this specific mummy.
-  const fetchPreferenceData = async () => {
+  const fetchPreferenceData = useCallback(async () => {
     setLoading(true);
     const client = createClient();
     // Use the mammiesId (primary key) to fetch the record.
@@ -130,16 +136,16 @@ const EditPreferenceMummyModal: React.FC<PreferenceMummyModalProps> = ({
       console.error("Error fetching preferred tribes:", tribeError);
     } else if (tribeData) {
       const tribesFromDB: Tribe[] = tribeData
-        .map((row: any) => row.tribes)
+        .map((row: TribeRow) => row.tribes)
         .filter(Boolean);
       setSelectedTribes(tribesFromDB);
     }
     setLoading(false);
-  };
+  }, [mammiesId]);
 
   useEffect(() => {
     fetchPreferenceData();
-  }, [mammiesId]);
+  }, [fetchPreferenceData]);
 
   // Update tribe suggestions when tribeInput changes.
   useEffect(() => {
@@ -152,19 +158,16 @@ const EditPreferenceMummyModal: React.FC<PreferenceMummyModalProps> = ({
 
   // Handle form submission: update preferences and tribe join table.
   const onSubmit = async () => {
-    // We use the passed mammiesId to update this specific mummy.
     const client = createClient();
     if (!mammiesId) {
       toast.error("No mummy ID found. Please complete previous steps.");
       return;
     }
-    // If preferences are enabled, ensure at least one religion is selected.
     if (hasPreferences === true && selectedReligions.length === 0) {
       toast.error("Please select at least one religion.");
       return;
     }
     setLoading(true);
-    // Update the mammies record with the preferred_religions.
     const { error } = await client
       .from("mammies")
       .upsert(
@@ -180,17 +183,13 @@ const EditPreferenceMummyModal: React.FC<PreferenceMummyModalProps> = ({
       setLoading(false);
       return;
     }
-    // Now update the join table for preferred tribes.
-    // First, clear existing rows for this mammiesId.
     const { error: deleteError } = await client
       .from("_mammyToPreferredTribe")
       .delete()
       .eq("A", mammiesId);
     if (deleteError) {
       console.error("Error deleting old tribe preferences:", deleteError);
-      // Optionally, continue even if delete fails.
     }
-    // Insert new rows for each selected tribe.
     if (selectedTribes.length > 0) {
       const rows = selectedTribes.map((tribe) => ({
         A: mammiesId,
@@ -260,7 +259,6 @@ const EditPreferenceMummyModal: React.FC<PreferenceMummyModalProps> = ({
                   <span className="text-sm md:text-base font-barlow">Budget</span>
                 </div>
                 <div className="w-full h-1 rounded-md bg-[#cccaca54]">
-                  {/* Assuming step 3 of 5 (60% progress) */}
                   <div className="h-full rounded-md bg-[#6000DA] w-[28%]"></div>
                 </div>
               </div>

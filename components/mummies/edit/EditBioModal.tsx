@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -42,7 +42,7 @@ const EditBioModal: React.FC<EditBioModalProps> = ({ mammiesId, onClose, onNext 
   const [loading, setLoading] = useState<boolean>(false);
 
   // Fetch the user data from user_accounts via the mammies table.
-  const fetchUserData = async () => {
+  const fetchUserData = useCallback(async () => {
     setLoading(true);
     const client = createClient();
 
@@ -88,12 +88,12 @@ const EditBioModal: React.FC<EditBioModalProps> = ({ mammiesId, onClose, onNext 
       });
     }
     setLoading(false);
-  };
+  }, [mammiesId, reset]);
 
   // Fetch user data on modal mount.
   useEffect(() => {
     fetchUserData();
-  }, [reset, mammiesId]);
+  }, [fetchUserData]);
 
   // Handle form submission: update the user_accounts record using the user_id.
   const onSubmit = async (data: MummyBioFormValues) => {
