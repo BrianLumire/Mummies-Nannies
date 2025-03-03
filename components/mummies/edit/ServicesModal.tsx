@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -67,31 +67,30 @@ const EditServiceMummy: React.FC<ServiceMummyProps> = ({ mammiesId, onClose, onB
   };
 
   // Fetch the existing service selection from the 'mammies' table using mammiesId.
-  const fetchServiceData = async () => {
+  const fetchServiceData = useCallback(async () => {
     setLoading(true);
     const client = createClient();
 
-    // Here we use the mammiesId (primary key in mammies table)
-    const { data, error } = await client
+    const result = await client
       .from("mammies")
       .select("*")
-      .eq("id", mammiesId)  // <--- Use the primary key
+      .eq("id", mammiesId)
       .maybeSingle();
 
-    if (error) {
-      console.error("Error fetching service data:", error);
+    if (result.error) {
+      console.error("Error fetching service data:", result.error);
       toast.error("Error fetching service data.");
-    } else if (data && data.nanny_services) {
+    } else if (result.data && result.data.nanny_services) {
       // Assuming nanny_services is stored as an array.
-      setSelectedServices(data.nanny_services);
+      setSelectedServices(result.data.nanny_services);
     }
     setLoading(false);
-  };
+  }, [mammiesId]);
 
   // Fetch data on component mount.
   useEffect(() => {
     fetchServiceData();
-  }, [mammiesId]);
+  }, [fetchServiceData]);
 
   // Handle form submission: update the database.
   const onSubmit = async (data: ServiceFormValues) => {
@@ -108,7 +107,7 @@ const EditServiceMummy: React.FC<ServiceMummyProps> = ({ mammiesId, onClose, onB
       .from("mammies")
       .upsert(
         {
-          id: mammiesId,  // Update the record with the given mammiesId
+          id: mammiesId,
           nanny_services: selectedServices,
         },
         { onConflict: "id" }

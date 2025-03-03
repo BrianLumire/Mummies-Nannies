@@ -64,7 +64,7 @@ const EditResidentsMummyModal: React.FC<ResidentsMummyModalProps> = ({ mammiesId
       }
     }
     setLoading(false);
-  }, [mammiesId]);
+  }, [mammiesId, reverseKidsMapping, reverseAgeMapping]);
 
   useEffect(() => {
     fetchResidentsData();
