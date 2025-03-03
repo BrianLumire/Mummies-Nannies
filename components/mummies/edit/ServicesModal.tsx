@@ -94,6 +94,7 @@ const EditServiceMummy: React.FC<ServiceMummyProps> = ({ mammiesId, onClose, onB
 
   // Handle form submission: update the database.
   const onSubmit = async (_data: ServiceFormValues) => {
+    void _data; 
     if (selectedServices.length === 0) {
       toast.error("Please select at least one service before proceeding.");
       return;
