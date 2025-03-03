@@ -88,19 +88,23 @@ const OnboardMummyModal: React.FC<OnboardMummyModalProps> = ({ onClose, onNext }
   // Handle form submission integration.
   const onSubmit = async (data: MummyBioFormValues) => {
     setSubmitting(true);
-    console.log("Mummy Bio Data:", data);
-    const client = createClient();
-    const { full_name, email, phone_number, photo } = data;
-    let mummyUserId = localStorage.getItem("mummyUserId");
+  console.log("Mummy Bio Data:", data);
+  const client = createClient();
+  const { full_name, email, phone_number, photo } = data;
+  let mummyUserId = localStorage.getItem("mummyUserId");
+
+  console.log("Email being used:", email);
+  console.log("Initial mummyUserId from local storage:", mummyUserId);
 
     if (!mummyUserId) {
       const { data: functionData, error: functionError } = await client.functions.invoke(
         "create_mammy_user_account",
-        { body: JSON.stringify({ email }) }
+        { body: { email } }
       );
+      
       if (functionError) {
-        toast.error("Error generating user id.");
         console.error("Edge function error:", functionError);
+        toast.error("Error generating user id: " + functionError.message);
         setSubmitting(false);
         return;
       }
@@ -111,6 +115,7 @@ const OnboardMummyModal: React.FC<OnboardMummyModalProps> = ({ onClose, onNext }
         return;
       }
       localStorage.setItem("mummyUserId", mummyUserId);
+      console.log("mummyUserId saved to local storage:", localStorage.getItem("mummyUserId"));
     } else {
       console.log("Using existing mummyUserId:", mummyUserId);
     }

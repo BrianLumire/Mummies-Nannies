@@ -71,7 +71,9 @@ const ServiceMummy: React.FC<ServiceMummyProps> = ({ onClose, onBack, onNext }) 
   // Fetch the existing service selection from the 'mammies' table.
   const fetchServiceData = async () => {
     const client = createClient();
-    const mummyUserId = localStorage.getItem("mammiesId");
+    // Use the correct key here: "mummyUserId"
+    const mummyUserId = localStorage.getItem("mummyUserId");
+    console.log("Service Modal: Retrieved mummyUserId from local storage:", mummyUserId);
     if (!mummyUserId) {
       console.error("No mummy user ID found in storage.");
       return;
@@ -97,14 +99,17 @@ const ServiceMummy: React.FC<ServiceMummyProps> = ({ onClose, onBack, onNext }) 
     fetchServiceData();
   }, []);
 
-  // Handle form submission. Removed the unused 'data' parameter.
+  // Handle form submission.
   const onSubmit = async () => {
     if (selectedServices.length === 0) {
       alert("Please select at least one service before proceeding.");
       return;
     }
 
-    const mummyUserId = localStorage.getItem("mammiesId");
+    // Use the correct key: "mummyUserId"
+    const mummyUserId = localStorage.getItem("mummyUserId");
+    console.log("Service Modal onSubmit: Retrieved mummyUserId from local storage:", mummyUserId);
+
     if (!mummyUserId) {
       toast.error("No user account found. Please complete the previous step.");
       return;
