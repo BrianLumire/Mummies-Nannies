@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
 import { createClient } from "@/supabase/client";
+import { PostgrestError } from "@supabase/supabase-js";
 
 // Define a schema for the preference modal (adjust validations as needed)
 const preferenceSchema = z.object({});
@@ -41,10 +42,7 @@ interface TribeRow {
   tribes: Tribe;
 }
 
-// Define an interface for the parameters for the search tribe RPC.
-interface SearchTribeParams {
-  tribe_name: string;
-}
+// Removed the unused interface: SearchTribeParams
 
 const PreferenceMummyModal: React.FC<PreferenceMummyModalProps> = ({ onClose, onBack, onNext }) => {
   // Moved inside the component
@@ -84,12 +82,12 @@ const PreferenceMummyModal: React.FC<PreferenceMummyModalProps> = ({ onClose, on
       return;
     }
     // Cast the response to ensure data is treated as Tribe[]
-    const { data, error } = await client.rpc("search_tribe", { tribe_name: searchTerm }) as { data: Tribe[] | null, error: any };
+    const { data, error } = await client.rpc("search_tribe", { tribe_name: searchTerm }) as { data: Tribe[] | null, error: PostgrestError | null };
     if (error) {
       console.error("Error searching tribes:", error);
       return;
     }
-    setTribeSuggestions((data as Tribe[]) || []);
+    setTribeSuggestions(data || []);
   };
 
   const addTribe = (tribe: Tribe) => {

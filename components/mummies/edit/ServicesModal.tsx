@@ -93,15 +93,15 @@ const EditServiceMummy: React.FC<ServiceMummyProps> = ({ mammiesId, onClose, onB
   }, [fetchServiceData]);
 
   // Handle form submission: update the database.
-  const onSubmit = async (data: ServiceFormValues) => {
+  const onSubmit = async (_data: ServiceFormValues) => {
     if (selectedServices.length === 0) {
       toast.error("Please select at least one service before proceeding.");
       return;
     }
-
+  
     setLoading(true);
     const client = createClient();
-
+  
     // Update the mammies record by matching the primary key (mammiesId)
     const { error } = await client
       .from("mammies")
@@ -112,18 +112,19 @@ const EditServiceMummy: React.FC<ServiceMummyProps> = ({ mammiesId, onClose, onB
         },
         { onConflict: "id" }
       );
-
+  
     if (error) {
       console.error("Error saving service information:", error);
       toast.error("Error saving service information.");
       setLoading(false);
       return;
     }
-
+  
     toast.success("Service information updated successfully!");
     setLoading(false);
     onNext();
   };
+  
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

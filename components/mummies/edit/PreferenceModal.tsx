@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
 import { createClient } from "@/supabase/client";
-
+import { PostgrestError } from "@supabase/supabase-js";
 // Schema for preference modal (no additional form fields for now)
 const preferenceSchema = z.object({});
 
@@ -79,14 +79,15 @@ const EditPreferenceMummyModal: React.FC<PreferenceMummyModalProps> = ({
       setTribeSuggestions([]);
       return;
     }
-    const { data, error } = await client.rpc("search_tribe", { tribe_name: searchTerm }) as { data: Tribe[] | null, error: any };
+    const { data, error } = await client
+      .rpc("search_tribe", { tribe_name: searchTerm }) as { data: Tribe[] | null, error: PostgrestError | null };
+    
     if (error) {
       console.error("Error searching tribes:", error);
       return;
     }
     setTribeSuggestions(data || []);
   };
-  
 
   const addTribe = (tribe: Tribe) => {
     if (!selectedTribes.find((t) => t.id === tribe.id)) {
