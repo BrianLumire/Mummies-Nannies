@@ -79,16 +79,14 @@ const EditPreferenceMummyModal: React.FC<PreferenceMummyModalProps> = ({
       setTribeSuggestions([]);
       return;
     }
-    const { data, error } = await client.rpc<Tribe[], { tribe_name: string }>(
-      "search_tribe",
-      { tribe_name: searchTerm }
-    );
+    const { data, error } = await client.rpc("search_tribe", { tribe_name: searchTerm }) as { data: Tribe[] | null, error: any };
     if (error) {
       console.error("Error searching tribes:", error);
       return;
     }
     setTribeSuggestions(data || []);
   };
+  
 
   const addTribe = (tribe: Tribe) => {
     if (!selectedTribes.find((t) => t.id === tribe.id)) {

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import Image from "next/image";
 import { toast } from "sonner";
 import { createClient } from "@/supabase/client";
@@ -18,18 +18,18 @@ const EditResidentsMummyModal: React.FC<ResidentsMummyModalProps> = ({ mammiesId
   const [adults, setAdults] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
-  // Mapping from DB enum values to UI strings (for pre-population)
-  const reverseKidsMapping: Record<"one_to_two" | "one_to_five" | "more_than_five", string> = {
+  // Wrap the mappings in useMemo so they don't change on every render.
+  const reverseKidsMapping = useMemo(() => ({
     one_to_two: "1-2 kids",
     one_to_five: "1-5 kids",
     more_than_five: "More than 5",
-  };
+  }), []);
 
-  const reverseAgeMapping: Record<"zero_to_one" | "one_to_three" | "three_and_above", string> = {
+  const reverseAgeMapping = useMemo(() => ({
     zero_to_one: "0-1 year",
     one_to_three: "1-3 years",
     three_and_above: "3 years and above",
-  };
+  }), []);
 
   // Fetch the existing residents data for the specific mummy using mammiesId.
   const fetchResidentsData = useCallback(async () => {
