@@ -53,9 +53,11 @@ const mapAgeGroup = (value: string | null | undefined) => {
   return value ? mapping[value] || value : "No preference";
 };
 
-const mapMummyServices = (services: string[] | undefined) => {
-  return services && services.length > 0 ? services.join(", ") : "N/A";
-};
+// Remove this function if it's not used
+// const mapMummyServices = (services: string[] | undefined) => {
+//   return services && services.length > 0 ? services.join(", ") : "N/A";
+// };
+
 
 const SingleMummyPage = () => {
   // Instead of backend data, we use dummyMummyData

@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { useRouter, useParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import EditMummyFlow from "@/components/mummies/edit/EditMummyFlow";
 import SuspendMummyModal from "@/components/mummies/SuspendMummyModal";
 import { createClient } from "@/supabase/client";
@@ -24,6 +24,26 @@ export interface Mummy {
   suspenionfor?: string;
   is_suspended?: boolean;
 }
+
+// Define a type for the fetched mummy data.
+interface MummyData {
+  id: string;
+  location?: string | null;
+  is_suspended?: boolean;
+  user_accounts: {
+    full_name: string | null;
+    phone: string | null; // Adjust type if you prefer a number (see below)
+    avatar_url: string | null;
+    created_at: string;
+  } | null;
+  nanny_services?: string[] | null;
+ // or adjust the type if needed
+  salary_ranges?: {
+    label: string;
+  } | null;
+}
+
+
 
 // Helper to sanitize URLs for Next/Image.
 function sanitizeUrl(url: string): string {
@@ -48,16 +68,15 @@ const formatDate = (timestamp: string): string => {
 };
 
 export default function SingleMummyLayout({ children }: { children: React.ReactNode }) {
-  const router = useRouter();
   const { id: mummyId } = useParams();
-  const id = typeof mummyId === "string" ? mummyId : (Array.isArray(mummyId) ? mummyId[0] : undefined);
+  const id = typeof mummyId === "string" ? mummyId : Array.isArray(mummyId) ? mummyId[0] : undefined;
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [showSuspendModal, setShowSuspendModal] = useState(false);
   const [showEditMummyFlow, setShowEditMummyFlow] = useState(false);
-  const [mummyData, setMummyData] = useState<any>(null);
+  const [mummyData, setMummyData] = useState<MummyData | null>(null);
 
   const supabase = createClient();
-  
+
   // Fetch mummy data by joining mammies, user_accounts, and salary_ranges.
   useEffect(() => {
     async function fetchMummyData() {
@@ -84,8 +103,13 @@ export default function SingleMummyLayout({ children }: { children: React.ReactN
         return;
       }
       if (data) {
-        setMummyData(data);
+        const sanitizedData = {
+          ...data,
+          location: data.location ?? undefined,
+        };
+        setMummyData(sanitizedData);
       }
+      
     }
     fetchMummyData();
   }, [id, supabase]);
@@ -106,10 +130,11 @@ export default function SingleMummyLayout({ children }: { children: React.ReactN
     : "N/A";
   const budgetRange = mummyData?.salary_ranges?.label || "N/A";
   const isSuspended = mummyData?.is_suspended;
-  // Format created_at from user_accounts as last seen.
-  const lastseen = mummyData?.user_accounts?.created_at 
-    ? formatDate(mummyData.user_accounts.created_at)
-    : "N/A";
+
+  // If needed later, you can use this variable. Otherwise, remove it.
+  // const lastseen = mummyData?.user_accounts?.created_at 
+  //   ? formatDate(mummyData.user_accounts.created_at)
+  //   : "N/A";
 
   // Suspend logic: update the mammies record using the mammies id.
   const handleSuspend = async (reasonId: string) => {
