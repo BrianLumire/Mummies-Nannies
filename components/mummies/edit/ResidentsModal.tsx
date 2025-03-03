@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { toast } from "sonner";
 import { createClient } from "@/supabase/client";
@@ -32,7 +32,7 @@ const EditResidentsMummyModal: React.FC<ResidentsMummyModalProps> = ({ mammiesId
   };
 
   // Fetch the existing residents data for the specific mummy using mammiesId.
-  const fetchResidentsData = async () => {
+  const fetchResidentsData = useCallback(async () => {
     setLoading(true);
     const client = createClient();
 
@@ -64,11 +64,11 @@ const EditResidentsMummyModal: React.FC<ResidentsMummyModalProps> = ({ mammiesId
       }
     }
     setLoading(false);
-  };
+  }, [mammiesId]);
 
   useEffect(() => {
     fetchResidentsData();
-  }, [mammiesId]);
+  }, [fetchResidentsData]);
 
   // Handle form submission: update the mammies record.
   const handleSubmit = async (e: React.FormEvent) => {
@@ -183,7 +183,7 @@ const EditResidentsMummyModal: React.FC<ResidentsMummyModalProps> = ({ mammiesId
               {/* Age Range Selection */}
               <div>
                 <label className="block font-barlow text-sm font-medium text-gray-700 mb-2">
-                  What's their age range?
+                  What&apos;s their age range?
                 </label>
                 <div className="flex gap-4">
                   {["0-1 year", "1-3 years", "3 years and above"].map(range => (

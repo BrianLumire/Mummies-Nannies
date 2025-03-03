@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useState } from "react";
 import { createClient } from "@/supabase/client";
 import { toast } from "sonner";
@@ -37,7 +36,9 @@ const AvailabilityToggle: React.FC<AvailabilityToggleProps> = ({
       setIsOn(!newAvailability);
     } else {
       toast.success("Availability updated successfully");
-      onChange && onChange(newAvailability);
+      if (onChange) {
+        onChange(newAvailability);
+      }
     }
     // Cooldown: Disable toggle for 3 seconds
     setTimeout(() => setIsUpdating(false), 3000);

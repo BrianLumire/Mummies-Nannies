@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { toast } from "sonner";
 import { createClient } from "@/supabase/client";
@@ -38,7 +38,7 @@ const EditBudgetMummyModal: React.FC<BudgetMummyModalProps> = ({ onClose, onComp
   const [loading, setLoading] = useState<boolean>(false);
 
   // Fetch existing salary_range_id for the mammies record and pre-populate the budget.
-  const fetchBudgetData = async () => {
+  const fetchBudgetData = useCallback(async () => {
     setLoading(true);
     const supabase = createClient();
     // Use the passed mammiesId to query the record.
@@ -58,11 +58,11 @@ const EditBudgetMummyModal: React.FC<BudgetMummyModalProps> = ({ onClose, onComp
       }
     }
     setLoading(false);
-  };
+  }, [mammiesId]);
 
   useEffect(() => {
     fetchBudgetData();
-  }, [mammiesId]);
+  }, [fetchBudgetData]);
 
   // Handle form submission: update the mammies record.
   const handleSubmit = async (e: React.FormEvent) => {
@@ -159,10 +159,9 @@ const EditBudgetMummyModal: React.FC<BudgetMummyModalProps> = ({ onClose, onComp
             <div className="w-full p-3 space-y-6">
               <h2 className="font-barlow font-semibold text-lg mb-4">Set Budget</h2>
               <div>
-              <label className="block font-barlow text-sm font-medium text-gray-700 mb-2">
-  Select the mummy&apos;s budget for a nanny
-</label>
-
+                <label className="block font-barlow text-sm font-medium text-gray-700 mb-2">
+                  Select the mummy&apos;s budget for a nanny
+                </label>
                 <div className="flex gap-4 flex-wrap">
                   {["6k-9k", "10k-15k", "16k-20k", "Above 20k"].map((option) => (
                     <button

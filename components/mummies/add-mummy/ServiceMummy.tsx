@@ -71,31 +71,25 @@ const ServiceMummy: React.FC<ServiceMummyProps> = ({ onClose, onBack, onNext }) 
   // Fetch the existing service selection from the 'mammies' table.
   const fetchServiceData = async () => {
     const client = createClient();
-    const mummyUserId = localStorage.getItem("mummyUserId");
+    const mummyUserId = localStorage.getItem("mammiesId");
     if (!mummyUserId) {
       console.error("No mummy user ID found in storage.");
       return;
     }
     const { data, error } = await client
-    .from("mammies")
-    .select("*")
-    .eq("user_id", mummyUserId)
-    .maybeSingle();
+      .from("mammies")
+      .select("*")
+      .eq("user_id", mummyUserId)
+      .maybeSingle();
   
-  if (error) {
-    console.error("Error fetching service data:", error);
-    return;
-  }
+    if (error) {
+      console.error("Error fetching service data:", error);
+      return;
+    }
   
-  if (data) {
-    console.log("Fetched data:", data); // Optional: Log data for debugging
-  }
-  
-  if (data?.nanny_services) {
-    setSelectedServices(data.nanny_services);
-  }
-  
-    
+    if (data?.nanny_services) {
+      setSelectedServices(data.nanny_services);
+    }
   };
 
   // On component mount, fetch the existing service data.
@@ -103,14 +97,14 @@ const ServiceMummy: React.FC<ServiceMummyProps> = ({ onClose, onBack, onNext }) 
     fetchServiceData();
   }, []);
 
-  // Handle form submission.
-  const onSubmit = async (data: ServiceFormValues) => {
+  // Handle form submission. Removed the unused 'data' parameter.
+  const onSubmit = async () => {
     if (selectedServices.length === 0) {
       alert("Please select at least one service before proceeding.");
       return;
     }
 
-    const mummyUserId = localStorage.getItem("mummyUserId");
+    const mummyUserId = localStorage.getItem("mammiesId");
     if (!mummyUserId) {
       toast.error("No user account found. Please complete the previous step.");
       return;

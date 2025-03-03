@@ -83,15 +83,13 @@ const PreferenceMummyModal: React.FC<PreferenceMummyModalProps> = ({ onClose, on
       setTribeSuggestions([]);
       return;
     }
-    const { data, error } = await client.rpc<Tribe[], SearchTribeParams>(
-      "search_tribe",
-      { tribe_name: searchTerm }
-    );
+    // Cast the response to ensure data is treated as Tribe[]
+    const { data, error } = await client.rpc("search_tribe", { tribe_name: searchTerm }) as { data: Tribe[] | null, error: any };
     if (error) {
       console.error("Error searching tribes:", error);
       return;
     }
-    setTribeSuggestions(data || []);
+    setTribeSuggestions((data as Tribe[]) || []);
   };
 
   const addTribe = (tribe: Tribe) => {
@@ -203,7 +201,6 @@ const PreferenceMummyModal: React.FC<PreferenceMummyModalProps> = ({ onClose, on
       return;
     }
    
-
     const { error: deleteError } = await client
       .from("_mammyToPreferredTribe")
       .delete()

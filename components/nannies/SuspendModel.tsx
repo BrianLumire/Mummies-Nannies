@@ -44,13 +44,12 @@ const SuspendModel: React.FC<SuspendModelProps> = ({ nannyId, onClose, onConfirm
     setLoading(true);
     try {
       const { error } = await supabase
-  .from("nannies")
-  .update({
-    is_suspended: true,
-    nanny_suspension_reason_id: selectedReason,
-  })
-  .eq("id", nannyId);
-
+        .from("nannies")
+        .update({
+          is_suspended: true,
+          nanny_suspension_reason_id: selectedReason,
+        })
+        .eq("id", nannyId);
 
       if (error) {
         toast.error(error.message);
@@ -59,8 +58,12 @@ const SuspendModel: React.FC<SuspendModelProps> = ({ nannyId, onClose, onConfirm
         onConfirm();
         onClose();
       }
-    } catch (err: any) {
-      toast.error(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        toast.error(err.message);
+      } else {
+        toast.error("An unexpected error occurred.");
+      }
     } finally {
       setLoading(false);
     }
